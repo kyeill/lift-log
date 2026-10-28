@@ -18,12 +18,19 @@ like an app.
 
 Four tabs across the top, **Push · Pull · Legs · Historical** (one per group in
 the Exercises tab, then Historical), dark all the time (his call, whatever the
-phone's setting). A quick sideways swipe moves to the next or previous tab. The
-app opens on the group last used today, else the first one (Push).
+phone's setting). A quick sideways swipe moves to the next or previous tab (no
+animation; he found it glitchy). The app opens on the group last used today,
+else the first one (Push).
 
 - **A group tab** — one card per exercise: name and weight tag on top; below,
   when it was last done over what it was (left), − / + for today (middle), and
-  ✓ (right). ✓ logs it; tapping again un-logs it.
+  ✓ (right). ✓ logs it; tapping it again un-logs it, and − / + on a logged card
+  change the logged amount.
+- **The date** under the tabs (group tabs only) is the day being logged:
+  "Today · Oct 27", ‹ › to step, tap the label for the phone's date picker. It
+  turns yellow on any day but today and cannot go past today; reopening the app
+  goes back to today. "Last time" on each card is the last entry before that
+  day.
 - **Historical** — 8 weeks per page, ‹ › to page back. Each weight row is
   colored blue (low) → green → yellow (high) against that exercise's whole
   history. Reps rows (Bench Dips, Push Up Plus) have no color. Rows use the

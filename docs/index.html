@@ -88,10 +88,14 @@ table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:
 .grid td.c.on{background:var(--accent-soft);color:var(--ink)}
 .grid td.c.heat{color:var(--ink)}
 .grid td.c.plain{background:var(--surface-2);color:var(--ink-2)}
-@media (prefers-reduced-motion:no-preference){
-  .screen.in-r{animation:in-r .18s ease-out} .screen.in-l{animation:in-l .18s ease-out}
-  @keyframes in-r{from{transform:translateX(28px);opacity:.3}} @keyframes in-l{from{transform:translateX(-28px);opacity:.3}}
-}
+
+/* date control above the exercise tabs: ‹ label › ; the label opens the phone's date picker */
+.datebar{display:flex;align-items:center;justify-content:center;gap:6px}
+.datebar > button{border:0;background:none;width:40px;height:36px;border-radius:10px;font-size:20px;color:var(--ink-2)}
+.datebar > button:disabled{opacity:.3;cursor:default}
+.datepick{position:relative;min-width:150px;text-align:center;font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;color:var(--ink-2)}
+.datepick.past{background:var(--warn-soft);color:var(--warn)}
+.datepick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer}
 
 .tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 14px rgb(0 0 0 / .2)}
 </style>
@@ -145,19 +149,20 @@ function model() {
 }
 const hist = id => M.byEx[id] || [];
 const inGroup = g => M.ex.filter(e => e.group === g);
-const todayEntry = id => hist(id).find(e => e.date === today());
-const lastEntry = id => { const h = hist(id).filter(e => e.date !== today()); return h.at(-1) || null; };
+const entryOn = (id, d) => hist(id).find(e => e.date === d);
+// the most recent entry before day d (a week-only import row counts from its Monday)
+const lastBefore = (id, d) => hist(id).filter(e => e.day <= d && e.date !== d).at(-1) || null;
 
 /* ---------- amounts ---------- */
 const mmss = s => `${Math.floor(s / 60)}:${pad(s % 60)}`;
 const short = (e, v) => e.kind === "time" ? mmss(v) : v;          // grid cells and tags
 const amt = (e, v) => e.kind === "time" ? mmss(v) : `${v} ${e.kind === "reps" ? "reps" : "lb"}`;    // sentences
-const draft = {};                                                  // today's − / + before ✓
-function curAmount(e) {
-  const t = todayEntry(e.id);
+const draft = {};                                                  // "id|day" -> − / + before ✓
+function amountOn(e, d) {
+  const t = entryOn(e.id, d);
   if (t) return t.amount;
-  if (draft[e.id] != null) return draft[e.id];
-  const l = lastEntry(e.id);
+  if (draft[e.id + "|" + d] != null) return draft[e.id + "|" + d];
+  const l = lastBefore(e.id, d);
   return l && l.amount != null ? l.amount : e.kind === "time" ? 60 : e.kind === "reps" ? 10 : 0;
 }
 
@@ -240,14 +245,14 @@ function todayGroup() {
   const saved = store.get("liftlog:group", null);
   return saved && saved.date === today() && M.groups.includes(saved.group) ? saved.group : M.groups[0];
 }
-const ui = { tab:null, hpage:0 };   // a group name or "hist"; null until the data is in
+const ui = { tab:null, hpage:0, day:null };   // tab: a group name or "hist", null until the data is in; day: the date being logged, null = today
+const logDay = () => (ui.day = ui.day && ui.day < today() ? ui.day : today());
 const tabList = () => [...M.groups, "hist"];
 const currentTab = () => (ui.tab = tabList().includes(ui.tab) ? ui.tab : todayGroup());
 function go(tab) {
-  const list = tabList(), dir = list.indexOf(tab) - list.indexOf(currentTab());
   ui.tab = tab;
   if (tab !== "hist") store.set("liftlog:group", { date:today(), group:tab });
-  scrollTo(0, 0); hideTip(); render(dir);
+  scrollTo(0, 0); hideTip(); render();
 }
 
 /* ---------- views ---------- */
@@ -266,10 +271,10 @@ function ago(e) {
 // it was (left), the − / + for today (middle), and ✓ (right).
 function vGroup(group) {
   return `<ol class="checklist">${inGroup(group).map(e => {
-    const t = todayEntry(e.id), l = lastEntry(e.id);
+    const d = logDay(), t = entryOn(e.id, d), l = lastBefore(e.id, d);
     const last = l ? `<span>${ago(l)}</span><b>${l.amount != null ? amt(e, l.amount) : "Done"}</b>` : `<span>First time</span><b>–</b>`;
     const ctl = e.kind === "bodyweight" ? `<span class="bwtag">Bodyweight</span>`
-      : `<div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${short(e, curAmount(e))}${e.kind === "time" ? "" : `<small> ${e.kind === "reps" ? "reps" : "lb"}</small>`}</output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>`;
+      : `<div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${short(e, amountOn(e, d))}${e.kind === "time" ? "" : `<small> ${e.kind === "reps" ? "reps" : "lb"}</small>`}</output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>`;
     return `<li class="row ${t ? "done" : ""}">
       <div class="row-top"><span class="ex-name">${e.name}</span>${pill(e)}</div>
       <div class="row-ctl"><div class="last">${last}</div>${ctl}<button class="check" data-act="check" data-id="${e.id}" aria-pressed="${!!t}">${t ? "✓ Done" : e.kind === "weight" ? "✓ 3×10" : "✓ 3 sets"}</button></div></li>`;
@@ -310,7 +315,7 @@ function vHist() {
 }
 
 const $top = document.getElementById("top"), $screen = document.getElementById("screen");
-function render(dir = 0) {
+function render() {
   const waiting = PENDING.length;
   const badge = SYNC.state === "offline" ? `<span class="sync">Offline${waiting ? ` · ${waiting} to save` : ""}</span>`
     : SYNC.state === "error" ? `<span class="sync bad">Couldn't reach the Sheet${waiting ? ` · ${waiting} to save` : ""}</span>` : "";
@@ -321,10 +326,23 @@ function render(dir = 0) {
   }
   model();
   const tab = currentTab();
-  $top.innerHTML = seg(tabList().map(t => [t, t === "hist" ? "Historical" : t]), tab, "tab") + badge;
+  $top.innerHTML = seg(tabList().map(t => [t, t === "hist" ? "Historical" : t]), tab, "tab") + (tab === "hist" ? "" : dateBar()) + badge;
   $screen.innerHTML = tab === "hist" ? vHist() : vGroup(tab);
-  if (dir) { $screen.classList.remove("in-l", "in-r"); void $screen.offsetWidth; $screen.classList.add(dir > 0 ? "in-r" : "in-l"); }
 }
+
+function dateBar() {
+  const d = logDay(), n = daysBetween(d, today()), wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][parse(d).getDay()];
+  const label = `${n === 0 ? "Today" : n === 1 ? "Yesterday" : wd} · ${fmt(d)}`;
+  return `<div class="datebar"><button data-act="day" data-v="-1" aria-label="Previous day">‹</button>
+    <label class="datepick${n ? " past" : ""}">${label}<input type="date" id="logday" value="${d}" max="${today()}" aria-label="Day to log"></label>
+    <button data-act="day" data-v="1" aria-label="Next day" ${n ? "" : "disabled"}>›</button></div>`;
+}
+document.addEventListener("change", ev => {
+  if (ev.target.id !== "logday" || !DATA) return;
+  const v = ev.target.value;
+  ui.day = /^\d{4}-\d{2}-\d{2}$/.test(v) && v <= today() ? v : today();
+  render();
+});
 
 /* swipe sideways for the next / previous tab: a quick stroke, mostly across */
 let touch = null;
@@ -346,16 +364,19 @@ document.addEventListener("click", ev => {
   switch (act) {
     case "tab": return go(v);
     case "hp": ui.hpage = Math.max(0, ui.hpage - +v); break;
+    case "day": ui.day = addDays(logDay(), +v); logDay(); break;
     case "minus": case "plus": {
-      const n = Math.max(0, curAmount(e) + (act === "plus" ? e.step : -e.step));
-      draft[id] = n;
-      if (todayEntry(id)) return change({ op:"set", id, date:today(), amount:n });
+      const d = logDay(), n = Math.max(0, amountOn(e, d) + (act === "plus" ? e.step : -e.step));
+      draft[id + "|" + d] = n;
+      if (entryOn(id, d)) return change({ op:"set", id, date:d, amount:n });
       break;
     }
-    case "check":
+    case "check": {
+      const d = logDay();
       hideTip();
-      return change(todayEntry(id) ? { op:"del", id, date:today() }
-        : { op:"set", id, date:today(), amount:e.kind === "bodyweight" ? null : curAmount(e) });
+      return change(entryOn(id, d) ? { op:"del", id, date:d }
+        : { op:"set", id, date:d, amount:e.kind === "bodyweight" ? null : amountOn(e, d) });
+    }
   }
   hideTip(); render();
 });
