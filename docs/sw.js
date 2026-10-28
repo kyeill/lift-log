@@ -2,7 +2,7 @@
 // The page is fetched fresh when there is a connection; the cached copy is the
 // fallback when there is not. The log itself lives in the page's localStorage
 // and the Google Sheet, so requests to script.google.com pass straight through.
-const CACHE = "lift-log-v1";
+const CACHE = "lift-log-v2";
 const SHELL = ["./", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"];
 
 self.addEventListener("install", e => {

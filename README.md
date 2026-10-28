@@ -16,7 +16,7 @@ like an app.
 
 ## The app
 
-Three tabs.
+Three tabs, dark all the time (his call, whatever the phone's setting).
 
 - **Today** — the exercises in the groups picked for today (the picker
   remembers the day's choice; otherwise it suggests the two groups done least
@@ -79,5 +79,12 @@ deployment, so the address in the page never changes. `.clasp.json` (script id
   count. The same is true after a change that adds a scope.
 - **The log is readable by anyone with the web app address** (it is in the
   page, and the repo is public). Accepted: it holds exercise names and weights.
+- **Changing the Exercises tab from here, without Kyle:** there is no
+  Sheets API connector. Push a one-time `migrate_()` (own file, called from
+  `doGet`), deploy, make one GET, then delete it and deploy again. Done once on
+  2026-10-27 for his Push / Pull / Legs list (renames kept Ids; Around the World
+  became Kettlebell; Deadlift, Front Squat and Wall Sits removed from the tab,
+  their Log rows left in the Sheet but unread). `Seed.js` still has the original
+  names; it is only used on an empty Sheet.
 - **The import is weekly**: one weight per exercise per week, no day. Those rows
   sit on the week's Monday in This Week and count as one session each.

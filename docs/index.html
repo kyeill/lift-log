@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Lift Log</title>
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#181d24" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#181d24">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Lift Log">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -15,24 +14,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one column, phone first; tabs pinned at the top, the open tab under them */
+/* Layout: one column, phone first; tabs pinned at the top, the open tab under them.
+   Dark all the time, whatever the phone's setting (Kyle's call). */
 :root{
-  --bg:#ffffff; --surface:#ffffff; --surface-2:#f2f4f7; --line:#dce1e8;
-  --ink:#16202b; --ink-2:#465263; --ink-3:#768191;
-  --accent:#2350c4; --accent-ink:#ffffff; --accent-soft:#e2e9fa;
-  --good:#1c7646; --good-soft:#dff1e6; --warn:#955600; --warn-soft:#fbeed6; --bad:#b23d2b;
-  --s0:#bcd0f7; --s1:#b4e2c3; --s2:#f5dc85;  /* history scale: low → mid → high */
-  --display:"Barlow Condensed","Arial Narrow",sans-serif;
-  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: dark){:root{
   --bg:#181d24; --surface:#181d24; --surface-2:#222932; --line:#2e3642;
   --ink:#e7ebf0; --ink-2:#adb6c3; --ink-3:#7f8998;
   --accent:#86a2f4; --accent-ink:#0e1422; --accent-soft:#25304a;
   --good:#62c690; --good-soft:#1b3326; --warn:#e8ab4f; --warn-soft:#382b15; --bad:#ec8a76;
-  --s0:#2d4a7e; --s1:#285c3e; --s2:#6e5b17;
-  color-scheme:dark }}
+  --s0:#2d4a7e; --s1:#285c3e; --s2:#6e5b17;  /* history scale: low → mid → high */
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
