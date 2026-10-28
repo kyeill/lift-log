@@ -4,11 +4,12 @@
  * Bound to the "Lift Log" Google Sheet. Two tabs, both safe to edit by hand;
  * columns are found by their header, so they can be moved:
  *
- *   Exercises  Name | Group | Kind | Step | Id
+ *   Exercises  Name | Group | Kind | Step | Id | Short
  *              Row order is the order in the app. Kind is weight, reps, time
  *              or bodyweight. Step is how far − / + moves (blank = 10 lb,
  *              1 rep, or 15 seconds). Id ties the log to the exercise, so renaming
  *              keeps the history; a new row gets an Id on the next sync.
+ *              Short (optional) is the name the Historical grid shows.
  *   Log        Date | Week of | Exercise | Amount | Id | Saved
  *              One row per exercise per day. Amount is total lb, reps,
  *              seconds for time, blank for bodyweight. Rows from the spreadsheet import
@@ -26,7 +27,7 @@
  * tabs and loads the history in Seed.js if the Log is empty.
  */
 
-var EX_HEAD = ["Name", "Group", "Kind", "Step", "Id"];
+var EX_HEAD = ["Name", "Group", "Kind", "Step", "Id", "Short"];
 var LOG_HEAD = ["Date", "Week of", "Exercise", "Amount", "Id", "Saved"];
 var DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -107,7 +108,10 @@ function readExercises_(sh) {
     var kind = String(r[t.col.Kind] || "weight").trim().toLowerCase();
     if (["weight", "reps", "time", "bodyweight"].indexOf(kind) < 0) kind = "weight";
     var step = Number(r[t.col.Step]) || ({ time: 15, reps: 1 }[kind] || 10);
-    out.push({ id: id, name: name, group: String(r[t.col.Group] || "Other").trim(), kind: kind, step: step });
+    var x = { id: id, name: name, group: String(r[t.col.Group] || "Other").trim(), kind: kind, step: step };
+    var short = String(r[t.col.Short] || "").trim();
+    if (short) x.short = short;
+    out.push(x);
   });
   return out;
 }
