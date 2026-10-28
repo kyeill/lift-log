@@ -1,0 +1,365 @@
+<title>Lift Log Prototypes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: short intro, then one phone-width app frame (edge to edge on a real phone), then the tag key */
+:root{
+  --bg:#e9edf1; --surface:#ffffff; --surface-2:#f2f4f7; --line:#dce1e8;
+  --ink:#16202b; --ink-2:#465263; --ink-3:#768191;
+  --accent:#2350c4; --accent-ink:#ffffff; --accent-soft:#e2e9fa;
+  --good:#1c7646; --good-soft:#dff1e6; --warn:#955600; --warn-soft:#fbeed6;
+  --s0:#bcd0f7; --s1:#b4e2c3; --s2:#f5dc85;  /* history scale: low → mid → high */
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1318; --surface:#181d24; --surface-2:#222932; --line:#2e3642;
+  --ink:#e7ebf0; --ink-2:#adb6c3; --ink-3:#7f8998;
+  --accent:#86a2f4; --accent-ink:#0e1422; --accent-soft:#25304a;
+  --good:#62c690; --good-soft:#1b3326; --warn:#e8ab4f; --warn-soft:#382b15;
+  --s0:#2d4a7e; --s1:#285c3e; --s2:#6e5b17;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#181d24; --surface-2:#222932; --line:#2e3642;
+  --ink:#e7ebf0; --ink-2:#adb6c3; --ink-3:#7f8998;
+  --accent:#86a2f4; --accent-ink:#0e1422; --accent-soft:#25304a;
+  --good:#62c690; --good-soft:#1b3326; --warn:#e8ab4f; --warn-soft:#382b15;
+  --s0:#2d4a7e; --s1:#285c3e; --s2:#6e5b17;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:400px;margin-inline:auto;display:grid;gap:16px}
+.intro h1{font:700 30px/1 var(--display);letter-spacing:.01em;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--ink-2);font-size:14px}
+
+/* phone frame; on a phone it runs edge to edge like the real app */
+.phone{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:26px;overflow:hidden;min-height:660px;box-shadow:0 10px 30px -18px rgb(10 20 40 / .35)}
+@media (max-width:440px){.phone{margin-inline:-16px;border-radius:0;border-inline:0;box-shadow:none}}
+.screen{padding:14px 12px 20px;display:grid;gap:14px;align-content:start}
+.apphead{display:grid;gap:8px}
+.apphead h2{font:700 30px/1 var(--display);margin:2px 0 0}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.muted{color:var(--ink-3)}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px;justify-self:start}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:999px;color:var(--ink-2);font-weight:600;font-size:14px}
+.seg.small button{padding:5px 11px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .16)}
+.tabs{display:flex;justify-content:center}
+.tabs .seg{justify-self:center}
+
+/* weight tags */
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;line-height:1.2}
+.pill i{font-style:normal;font-size:9px}
+.pill.ready{background:var(--good-soft);color:var(--good)}
+.pill.new{background:var(--accent-soft);color:var(--accent)}
+.pill.long{background:var(--warn-soft);color:var(--warn)}
+.pill.build{background:var(--surface-2);color:var(--ink-2)}
+.dots{display:inline-flex;gap:2px}
+.dots b{width:6px;height:6px;border-radius:50%;border:1.5px solid currentColor}
+.dots b.on{background:currentColor}
+
+/* Today checklist */
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.row{border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:grid;gap:8px;background:var(--surface)}
+.row.done{background:var(--accent-soft);border-color:transparent}
+.row-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.row-top > div{display:grid;gap:1px;min-width:0}
+.ex-name{font-weight:700;font-size:16px}
+.ago{font-size:13px;color:var(--ink-3)}
+.row-ctl{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.stepper button{border:0;background:var(--surface-2);width:44px;height:44px;font-size:22px;line-height:1}
+.stepper output{min-width:66px;text-align:center;font:700 24px/1 var(--display);font-variant-numeric:tabular-nums}
+.stepper small{font:500 12px var(--body);color:var(--ink-3)}
+.bwtag{font:600 18px var(--display);color:var(--ink-3);letter-spacing:.02em}
+.check{border-radius:12px;height:44px;min-width:96px;padding:0 14px;font-weight:700;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent)}
+.check[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.appfoot{text-align:center;font-size:13px;color:var(--ink-3)}
+
+/* Progress grid: fixed layout so it always fits the screen width */
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.weeknav button{border:1px solid var(--line);background:var(--surface);width:40px;height:40px;border-radius:12px;font-size:18px}
+.weeknav button:disabled{opacity:.35;cursor:default}
+.weeknav .ttl{text-align:center}
+.weeknav .ttl b{font:700 22px/1 var(--display);display:block}
+table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:100%;font-variant-numeric:tabular-nums}
+.grid col.nmcol{width:29%}
+.grid th,.grid td{padding:0;text-align:center;font-size:11px}
+.grid thead th{color:var(--ink-3);font-weight:600;padding-bottom:4px;line-height:1.15;vertical-align:bottom}
+.grid thead th .d{display:block;font:700 15px var(--display);color:var(--ink-2)}
+.grid thead th.today,.grid thead th.today .d{color:var(--accent)}
+.grid th.nm{text-align:left;font-weight:600;font-size:12.5px;color:var(--ink);line-height:1.15;padding-right:4px;overflow-wrap:anywhere}
+.grid tr.grp th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 2px;font-weight:600}
+.grid td.c{height:32px;border-radius:7px;font:600 14px/1 var(--display);white-space:nowrap;overflow:hidden}
+.grid td.c.on{background:var(--accent-soft);color:var(--ink)}
+.grid td.c.heat{color:var(--ink)}
+.grid td.c.lw{color:var(--ink-3);font-weight:500}
+.grid td.c.tcol:not(.on){background:var(--surface-2)}
+.grid td.c sup{font-size:8px;color:var(--good);margin-left:1px}
+.grid tr.count td{font:700 15px var(--display);height:26px}
+.grid tr.count td.ingoal{color:var(--good)}
+.grid tr.count td.low{color:var(--warn)}
+.keyrow{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);align-items:center}
+.hint{font-size:13px;color:var(--ink-2);margin:0}
+
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 14px rgb(0 0 0 / .2)}
+
+/* key below the frame */
+.key{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:10px}
+.key h2{font:700 20px/1 var(--display);margin:0}
+.key dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:start;font-size:13px;color:var(--ink-2)}
+.key dt{padding-top:1px}
+.key dd{margin:0}
+.key p{margin:0;font-size:13px;color:var(--ink-2)}
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>Lift Log</h1>
+  </div>
+  <div class="phone" id="app"></div>
+
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------- helpers ---------- */
+const DAY_MS = 864e5;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WD = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const WL = ['M','T','W','T','F','S','S'];
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const monday = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12); return addDays(x, -((x.getDay() + 6) % 7)); };
+const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const fmt = d => `${MON[d.getMonth()]} ${d.getDate()}`;
+const wdi = d => (d.getDay() + 6) % 7;
+const TODAY = new Date(); TODAY.setHours(12, 0, 0, 0);
+const THIS_MON = monday(TODAY);
+const ago = d => { const n = Math.round((TODAY - d) / DAY_MS); return n === 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`; };
+
+/* ---------- exercises (weights are total lb, time is seconds; bodyweight has none) ---------- */
+const GROUPS = ['Push', 'Pull', 'Hinge', 'Squat'];
+const EX = [
+  { id:'bench',     name:'Bench',            group:'Push',  start:115 },
+  { id:'fly',       name:'Fly',              group:'Push',  start:30 },
+  { id:'shoulder',  name:'Shoulder',         group:'Push',  start:50, stays:true },
+  { id:'triceps',   name:'Tricep',           group:'Push',  start:30 },
+  { id:'dips',      name:'Bench Dips',       group:'Push',  start:10, step:5 },
+  { id:'pushup',    name:'Push Up Plus',     group:'Push',  bw:true },
+  { id:'rows',      name:'Rows',             group:'Pull',  start:70 },
+  { id:'revfly',    name:'Reverse Fly',      group:'Pull',  start:20 },
+  { id:'bicep',     name:'Bicep',            group:'Pull',  start:30 },
+  { id:'atw',       name:'Around the World', group:'Pull',  start:15, step:5 },
+  { id:'deadlift',  name:'Deadlift',         group:'Hinge', start:165 },
+  { id:'romanian',  name:'Romanian',         group:'Hinge', start:115 },
+  { id:'latlunge',  name:'Lateral Lunge',    group:'Hinge', start:40 },
+  { id:'frontsq',   name:'Front Squat',      group:'Squat', start:95 },
+  { id:'bulgarian', name:'Bulgarian',        group:'Squat', start:40 },
+  { id:'wallsit',   name:'Wall Sits',        group:'Squat', start:60, time:true },
+];
+const step = e => e.step || (e.time ? 15 : 10);
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const short = (e, v) => e.time ? mmss(v) : v;          // grid cells and tags
+const amt = (e, v) => e.time ? mmss(v) : `${v} lb`;    // sentences
+const byId = Object.fromEntries(EX.map(e => [e.id, e]));
+const inGroup = g => EX.filter(e => e.group === g);
+
+/* ---------- the "Ready" rule ---------- */
+const need = (w, inc = 10) => { const jump = inc / w; return jump <= 0.075 ? 2 : jump <= 0.15 ? 3 : 4; };
+
+/* ---------- fake history ---------- */
+function rng(seed) { return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = rng(81);
+const PATTERN = [2,3,3,4,2,3,1,3,3,2,4,3,3,2,4,3,3,1,3,4,2,3,3]; // workouts per full week, oldest first
+const SLOTS = { 1:[2], 2:[0,3], 3:[0,2,4], 4:[0,1,3,5] }; // which weekdays
+const ROTATION = [['Push', 'Pull'], ['Hinge', 'Squat']];  // made-up pattern: upper / lower
+const BUMP = { 2:0.2, 3:0.2, 4:0.12 };                   // chance of moving up once ready
+const sessions = [];
+let rot = 0;
+const sim = {}; EX.forEach(e => sim[e.id] = { w:e.start, n:0 });
+function simulate(date) {
+  const s = { date, groups:ROTATION[rot], entries:{} };
+  EX.filter(e => s.groups.includes(e.group)).forEach(e => {
+    if (e.bw) { s.entries[e.id] = { w:null }; return; }
+    const t = sim[e.id];
+    const n = need(t.w, step(e));
+    if (!e.stays && t.n >= n && R() < BUMP[n]) { t.w += step(e); t.n = 0; }
+    s.entries[e.id] = { w:t.w }; t.n++;
+  });
+  sessions.push(s); rot = 1 - rot;
+}
+PATTERN.forEach((c, i) => { const wk = addDays(THIS_MON, -7 * (PATTERN.length - i)); SLOTS[c].forEach(o => simulate(addDays(wk, o))); });
+SLOTS[3].filter(o => o < wdi(TODAY)).forEach(o => simulate(addDays(THIS_MON, o)));
+const NEXT_GROUPS = sessions.length ? GROUPS.filter(g => !sessions.at(-1).groups.includes(g)) : ['Push', 'Pull'];
+
+/* ---------- queries ---------- */
+const todaySession = () => sessions.find(s => sameDay(s.date, TODAY));
+const todayEntry = id => { const s = todaySession(); return s && s.entries[id]; };
+const hist = id => sessions.filter(s => s.entries[id]).map(s => ({ date:s.date, ...s.entries[id] }));
+function lastEntry(id) {
+  for (let i = sessions.length - 1; i >= 0; i--) {
+    const s = sessions[i];
+    if (!sameDay(s.date, TODAY) && s.entries[id]) return { date:s.date, ...s.entries[id] };
+  }
+  return null;
+}
+const draftW = {};
+function curW(id) { const t = todayEntry(id); if (t) return t.w; if (draftW[id] != null) return draftW[id]; const l = lastEntry(id); return l ? l.w : 0; }
+
+function status(ex) {
+  const h = hist(ex.id);
+  if (ex.bw || !h.length) return { k:'none' };
+  const w = h.at(-1).w;
+  let i = h.length - 1; while (i >= 0 && h[i].w === w) i--;
+  const at = h.length - 1 - i, prev = i >= 0 ? h[i].w : null, n = need(w, step(ex));
+  if (at >= 8) return { k:'long', w, at, n };
+  if (at >= n) return { k:'ready', w, at, n };
+  if (prev !== null && prev < w && at <= 2) return { k:'new', w, at, n };
+  return { k:'build', w, at, n };
+}
+const dots = (on, n) => `<span class="dots" aria-hidden="true">${Array.from({ length:n }, (_, i) => `<b class="${i < on ? 'on' : ''}"></b>`).join('')}</span>`;
+function pill(ex) {
+  const s = status(ex);
+  switch (s.k) {
+    case 'ready': return `<span class="pill ready" title="${s.at} sessions at ${short(ex, s.w)}"><i>▲</i>Ready for ${short(ex, s.w + step(ex))}</span>`;
+    case 'new':   return `<span class="pill new"><i>●</i>New weight</span>`;
+    case 'long':  return `<span class="pill long" title="${s.at} sessions at ${short(ex, s.w)}"><i>▲</i>Ready for ${short(ex, s.w + step(ex))}</span>`;
+    case 'build': return `<span class="pill build">${dots(s.at, s.n)}${s.at} of ${s.n}</span>`;
+    default: return '';
+  }
+}
+function weeks(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const start = addDays(THIS_MON, -7 * i), end = addDays(start, 7);
+    out.push({ start, end, count:sessions.filter(s => s.date >= start && s.date < end).length, current:i === 0 });
+  }
+  return out;
+}
+
+/* ---------- logging ---------- */
+function setW(id, w) { w = Math.max(0, w); draftW[id] = w; const t = todayEntry(id); if (t) t.w = w; }
+function toggle(id) {
+  let s = todaySession();
+  if (!s) { s = { date:new Date(TODAY), groups:[...ui.groups], entries:{} }; sessions.push(s); }
+  if (s.entries[id]) {
+    delete s.entries[id];
+    if (!Object.keys(s.entries).length) sessions.splice(sessions.indexOf(s), 1);
+  } else s.entries[id] = { w:byId[id].bw ? null : curW(id) };
+}
+
+/* ---------- views ---------- */
+const ui = { tab:'today', groups:NEXT_GROUPS, week:0, hpage:0 };
+const seg = (opts, cur, act, cls = '') => `<div class="seg ${cls}" role="group">${opts.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join('')}</div>`;
+const groupPicker = () => `<div class="seg small" role="group" aria-label="Groups today">${GROUPS.map(g => `<button data-act="grp" data-v="${g}" aria-pressed="${ui.groups.includes(g)}">${g}</button>`).join('')}</div>`;
+const weekWord = n => `${n} workout${n === 1 ? '' : 's'}`;
+
+function vToday() {
+  const list = EX.filter(e => ui.groups.includes(e.group));
+  return `<header class="apphead"><h2>${ui.groups.join(' + ') || 'Pick a group'}</h2>${groupPicker()}</header>
+    <ol class="checklist">${list.map(e => {
+      const t = todayEntry(e.id), l = lastEntry(e.id);
+      const sub = l ? `${ago(l.date)}${e.bw ? '' : ` (${amt(e, l.w)})`}` : 'First time';
+      return `<li class="row ${t ? 'done' : ''}">
+        <div class="row-top"><div><span class="ex-name">${e.name}</span><span class="ago">${sub}</span></div>${pill(e)}</div>
+        <div class="row-ctl">${e.bw ? '<span class="bwtag">Bodyweight</span>' : `<div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${short(e, curW(e.id))}${e.time ? '' : '<small> lb</small>'}</output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>`}
+          <button class="check" data-act="check" data-id="${e.id}" aria-pressed="${!!t}">${t ? '✓ Done' : e.time ? '✓ 3 sets' : '✓ 3×10'}</button></div></li>`;
+    }).join('')}</ol>`;
+}
+
+const cell = (e, en, prior, extra = '', tip = '') => {
+  if (!en) return `<td class="c ${extra}"></td>`;
+  const up = !e.bw && prior != null && prior < en.w;
+  return `<td class="c on ${extra}" data-tip="${tip}">${e.bw ? '✓' : short(e, en.w)}${up ? '<sup>▲</sup>' : ''}</td>`;
+};
+const cols = `<colgroup><col class="nmcol">${'<col>'.repeat(8)}</colgroup>`;
+const nav = (title, act, canBack, canFwd) => `<div class="weeknav"><button data-act="${act}" data-v="-1" aria-label="Earlier" ${canBack ? '' : 'disabled'}>‹</button>
+  <div class="ttl"><b>${title}</b></div><button data-act="${act}" data-v="1" aria-label="Later" ${canFwd ? '' : 'disabled'}>›</button></div>`;
+const FIRST_MON = sessions.length ? monday(sessions[0].date) : THIS_MON;
+
+function vWeek() {
+  {
+    const ws = addDays(THIS_MON, 7 * ui.week), we = addDays(ws, 7), days = Array.from({ length:7 }, (_, i) => addDays(ws, i));
+    const inWeek = sessions.filter(s => s.date >= ws && s.date < we);
+    const head = `<tr><th></th><th>Last<br>wk</th>${days.map(d => `<th class="${sameDay(d, TODAY) ? 'today' : ''}">${WL[wdi(d)]}<span class="d">${d.getDate()}</span></th>`).join('')}</tr>`;
+    const rows = GROUPS.map(g => `<tr class="grp"><th colspan="9">${g}</th></tr>` + inGroup(g).map(e => {
+      const before = sessions.filter(s => s.date < ws && s.entries[e.id]).at(-1);
+      const lw = before ? (e.bw ? '✓' : short(e, before.entries[e.id].w)) : '–';
+      const cells = days.map(d => {
+        const s = inWeek.find(s => sameDay(s.date, d)), en = s && s.entries[e.id];
+        const prior = en && sessions.filter(x => x.date < d && x.entries[e.id]).at(-1);
+        return cell(e, en, prior && prior.entries[e.id].w, sameDay(d, TODAY) ? 'tcol' : '', en ? `${e.name}, ${fmt(d)}: ${e.bw ? 'bodyweight' : amt(e, en.w)}` : '');
+      }).join('');
+      return `<tr><th class="nm">${e.name}</th><td class="c lw">${lw}</td>${cells}</tr>`;
+    }).join('')).join('');
+    return nav(`${fmt(ws)} – ${fmt(addDays(ws, 6))}`, 'wk', ws > FIRST_MON, ui.week < 0) +
+      `<table class="grid">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table>`;
+  }
+}
+
+/* Historical: 8 weeks per page; each row colored low (blue) → green → high (yellow) against that exercise's own range */
+const heat = t => t <= 0.5
+  ? `color-mix(in oklab, var(--s1) ${Math.round(t * 200)}%, var(--s0))`
+  : `color-mix(in oklab, var(--s2) ${Math.round((t - 0.5) * 200)}%, var(--s1))`;
+function vHist() {
+  const newest = addDays(THIS_MON, -56 * ui.hpage);
+  const wk = Array.from({ length:8 }, (_, i) => { const start = addDays(newest, -7 * (7 - i)); return { start, end:addDays(start, 7) }; });
+  const head = `<tr><th></th>${wk.map((w, i) => `<th>${i === 0 || w.start.getDate() <= 7 ? MON[w.start.getMonth()] : '&nbsp;'}<span class="d">${w.start.getDate()}</span></th>`).join('')}</tr>`;
+  const rows = GROUPS.map(g => `<tr class="grp"><th colspan="9">${g}</th></tr>` + inGroup(g).map(e => {
+    const ws = hist(e.id).map(x => x.w).filter(w => w != null);
+    const lo = Math.min(...ws), hi = Math.max(...ws);
+    const cells = wk.map(w => {
+      const ss = sessions.filter(s => s.date >= w.start && s.date < w.end && s.entries[e.id]);
+      if (!ss.length) return `<td class="c"></td>`;
+      const top = ss.at(-1).entries[e.id], tip = `${e.name}, week of ${fmt(w.start)}: ${e.bw ? 'bodyweight' : amt(e, top.w)}`;
+      if (e.bw) return `<td class="c on" data-tip="${tip}">✓</td>`;
+      const t = hi > lo ? (top.w - lo) / (hi - lo) : 0.5;
+      return `<td class="c heat" style="background:${heat(t)}" data-tip="${tip}">${short(e, top.w)}</td>`;
+    }).join('');
+    return `<tr><th class="nm">${e.name}</th>${cells}</tr>`;
+  }).join('')).join('');
+  return nav(`${fmt(wk[0].start)} – ${fmt(addDays(wk[7].start, 6))}`, 'hp', wk[0].start > FIRST_MON, ui.hpage > 0) +
+    `<table class="grid">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+
+const app = document.getElementById('app');
+function render() {
+  const tabs = `<div class="tabs">${seg([['today', 'Today'], ['week', 'This Week'], ['hist', 'Historical']], ui.tab, 'tab')}</div>`;
+  app.innerHTML = `<div class="screen">${tabs}${{ today:vToday, week:vWeek, hist:vHist }[ui.tab]()}</div>`;
+}
+app.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const { act, id, v } = el.dataset;
+  switch (act) {
+    case 'tab': ui.tab = v; break;
+    case 'grp': ui.groups = ui.groups.includes(v) ? ui.groups.filter(g => g !== v) : GROUPS.filter(g => g === v || ui.groups.includes(g)); break;
+    case 'wk': ui.week = Math.min(0, ui.week + +v); break;
+    case 'hp': ui.hpage = Math.max(0, ui.hpage - +v); break;
+    case 'minus': setW(id, curW(id) - step(byId[id])); break;
+    case 'plus': setW(id, curW(id) + step(byId[id])); break;
+    case 'check': toggle(id); break;
+  }
+  hideTip(); render();
+});
+
+/* tooltip: hover on desktop, tap on phone */
+const tip = document.getElementById('tip');
+function showTip(el, x, y) {
+  if (!el.dataset.tip) return hideTip();
+  tip.textContent = el.dataset.tip; tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  tip.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, x - r.width / 2)) + 'px';
+  tip.style.top = Math.max(8, y - r.height - 12) + 'px';
+}
+function hideTip() { tip.hidden = true; }
+document.addEventListener('pointermove', ev => { if (ev.pointerType !== 'mouse') return; const el = ev.target.closest('[data-tip]'); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
+document.addEventListener('pointerdown', ev => { if (ev.pointerType === 'mouse') return; const el = ev.target.closest('[data-tip]'); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
+addEventListener('scroll', hideTip, { passive:true });
+
+render();
+</script>

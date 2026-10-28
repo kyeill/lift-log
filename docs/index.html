@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lift Log</title>
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#181d24" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lift Log">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one column, phone first; tabs pinned at the top, the open tab under them */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f2f4f7; --line:#dce1e8;
+  --ink:#16202b; --ink-2:#465263; --ink-3:#768191;
+  --accent:#2350c4; --accent-ink:#ffffff; --accent-soft:#e2e9fa;
+  --good:#1c7646; --good-soft:#dff1e6; --warn:#955600; --warn-soft:#fbeed6; --bad:#b23d2b;
+  --s0:#bcd0f7; --s1:#b4e2c3; --s2:#f5dc85;  /* history scale: low → mid → high */
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#181d24; --surface:#181d24; --surface-2:#222932; --line:#2e3642;
+  --ink:#e7ebf0; --ink-2:#adb6c3; --ink-3:#7f8998;
+  --accent:#86a2f4; --accent-ink:#0e1422; --accent-soft:#25304a;
+  --good:#62c690; --good-soft:#1b3326; --warn:#e8ab4f; --warn-soft:#382b15; --bad:#ec8a76;
+  --s0:#2d4a7e; --s1:#285c3e; --s2:#6e5b17;
+  color-scheme:dark }}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:520px;margin-inline:auto;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:8px;display:grid;gap:6px;justify-items:center}
+.screen{display:grid;gap:14px;align-content:start;padding-top:6px}
+h2{font:700 30px/1 var(--display);margin:2px 0 0}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:999px;color:var(--ink-2);font-weight:600;font-size:14px}
+.seg.small button{padding:5px 11px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .16)}
+.sync{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.sync.bad{background:var(--surface-2);color:var(--bad)}
+.empty{color:var(--ink-3);text-align:center;padding:40px 0}
+
+/* weight tags */
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;line-height:1.2}
+.pill i{font-style:normal;font-size:9px}
+.pill.ready{background:var(--good-soft);color:var(--good)}
+.pill.new{background:var(--accent-soft);color:var(--accent)}
+.pill.long{background:var(--warn-soft);color:var(--warn)}
+.pill.build{background:var(--surface-2);color:var(--ink-2)}
+.dots{display:inline-flex;gap:2px}
+.dots b{width:6px;height:6px;border-radius:50%;border:1.5px solid currentColor}
+.dots b.on{background:currentColor}
+
+/* Today */
+.apphead{display:grid;gap:8px}
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.row{border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:grid;gap:8px;background:var(--surface)}
+.row.done{background:var(--accent-soft);border-color:transparent}
+.row-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.row-top > div{display:grid;gap:1px;min-width:0}
+.ex-name{font-weight:700;font-size:16px}
+.ago{font-size:13px;color:var(--ink-3)}
+.row-ctl{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.stepper button{border:0;background:var(--surface-2);width:46px;height:46px;font-size:22px;line-height:1}
+.stepper output{min-width:68px;text-align:center;font:700 24px/1 var(--display);font-variant-numeric:tabular-nums}
+.stepper small{font:500 12px var(--body);color:var(--ink-3)}
+.bwtag{font:600 18px var(--display);color:var(--ink-3);letter-spacing:.02em}
+.check{border-radius:12px;height:46px;min-width:100px;padding:0 14px;font-weight:700;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent)}
+.check[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+/* This Week + Historical grids: fixed layout so they always fit the screen */
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.weeknav button{border:1px solid var(--line);background:var(--surface);width:42px;height:42px;border-radius:12px;font-size:18px}
+.weeknav button:disabled{opacity:.35;cursor:default}
+.weeknav b{font:700 22px/1 var(--display);text-align:center}
+table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:100%;font-variant-numeric:tabular-nums}
+.grid col.nmcol{width:29%}
+.grid th,.grid td{padding:0;text-align:center;font-size:11px}
+.grid thead th{color:var(--ink-3);font-weight:600;padding-bottom:4px;line-height:1.15;vertical-align:bottom}
+.grid thead th .d{display:block;font:700 15px var(--display);color:var(--ink-2)}
+.grid thead th.today,.grid thead th.today .d{color:var(--accent)}
+.grid th.nm{text-align:left;font-weight:600;font-size:12.5px;color:var(--ink);line-height:1.15;padding-right:4px;overflow-wrap:anywhere}
+.grid tr.grp th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 2px;font-weight:600}
+.grid td.c{height:32px;border-radius:7px;font:600 14px/1 var(--display);white-space:nowrap;overflow:hidden}
+.grid td.c.on{background:var(--accent-soft);color:var(--ink)}
+.grid td.c.heat{color:var(--ink)}
+.grid td.c.lw{color:var(--ink-3);font-weight:500}
+.grid td.c.tcol:not(.on){background:var(--surface-2)}
+.grid td.c sup{font-size:8px;color:var(--good);margin-left:1px}
+
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 14px rgb(0 0 0 / .2)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top" id="top"></div>
+  <div class="screen" id="screen"></div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* The log lives in a Google Sheet behind an Apps Script web app (apps-script/
+   in the repo). This page keeps a copy in localStorage so it opens instantly and
+   works offline; changes queue up and are sent when there is a connection. */
+const API = "https://script.google.com/macros/s/AKfycbw07XGcy6bStN_AnhQnrdrngdMappvgGmJ7lSxQxsvEJrMaX59-yOGjmqc3J5jZ4eJIlw/exec";
+
+/* ---------- storage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+let DATA = store.get("liftlog:data", null);        // {exercises, log} as the server last sent it, plus local changes
+let PENDING = store.get("liftlog:pending", []);    // [{op, id, date, amount}] not yet acknowledged
+const SYNC = { state:"ok" };
+
+/* ---------- dates (local, as yyyy-mm-dd) ---------- */
+const DAY_MS = 864e5;
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const WL = ["M","T","W","T","F","S","S"];
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const mondayOf = s => addDays(s, -((parse(s).getDay() + 6) % 7));
+const fmt = s => { const d = parse(s); return `${MON[d.getMonth()]} ${d.getDate()}`; };
+const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / DAY_MS);
+const today = () => iso(new Date());
+
+/* ---------- the model, rebuilt from DATA on each render ---------- */
+let M;
+function model() {
+  const ex = DATA.exercises, byId = Object.fromEntries(ex.map(e => [e.id, e]));
+  const groups = [...new Set(ex.map(e => e.group))];
+  const byEx = {};
+  DATA.log.filter(e => byId[e.id]).map(e => ({ ...e, day:e.date || e.week, weekOnly:!e.date }))
+    .sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.weekOnly - b.weekOnly ? (a.weekOnly ? -1 : 1) : 0)
+    .forEach(e => (byEx[e.id] = byEx[e.id] || []).push(e));
+  const days = DATA.log.map(e => e.date || e.week).sort();
+  M = { ex, byId, groups, byEx, first:days.length ? mondayOf(days[0]) : mondayOf(today()) };
+}
+const hist = id => M.byEx[id] || [];
+const inGroup = g => M.ex.filter(e => e.group === g);
+const todayEntry = id => hist(id).find(e => e.date === today());
+const lastEntry = id => { const h = hist(id).filter(e => e.date !== today()); return h.at(-1) || null; };
+
+/* ---------- amounts ---------- */
+const mmss = s => `${Math.floor(s / 60)}:${pad(s % 60)}`;
+const short = (e, v) => e.kind === "time" ? mmss(v) : v;          // grid cells and tags
+const amt = (e, v) => e.kind === "time" ? mmss(v) : `${v} lb`;    // sentences
+const draft = {};                                                  // today's − / + before ✓
+function curAmount(e) {
+  const t = todayEntry(e.id);
+  if (t) return t.amount;
+  if (draft[e.id] != null) return draft[e.id];
+  const l = lastEntry(e.id);
+  return l && l.amount != null ? l.amount : e.kind === "time" ? 60 : 0;
+}
+
+/* ---------- the "Ready" rule ----------
+   Counts sessions at the current amount. How many it takes depends on how big
+   one step is for this exercise: 7.5% or less needs 2, up to 15% needs 3,
+   bigger needs 4. Eight or more = still "Ready", but yellow. */
+const need = (w, step) => { const jump = w > 0 ? step / w : 1; return jump <= 0.075 ? 2 : jump <= 0.15 ? 3 : 4; };
+function status(e) {
+  const h = hist(e.id).filter(x => x.amount != null);
+  if (e.kind === "bodyweight" || !h.length) return { k:"none" };
+  const w = h.at(-1).amount;
+  let i = h.length - 1; while (i >= 0 && h[i].amount === w) i--;
+  const at = h.length - 1 - i, prev = i >= 0 ? h[i].amount : null, n = need(w, e.step);
+  if (at >= 8) return { k:"long", w, at, n };
+  if (at >= n) return { k:"ready", w, at, n };
+  if (prev !== null && prev < w && at <= 2) return { k:"new", w, at, n };
+  return { k:"build", w, at, n };
+}
+const dots = (on, n) => `<span class="dots" aria-hidden="true">${Array.from({ length:n }, (_, i) => `<b class="${i < on ? "on" : ""}"></b>`).join("")}</span>`;
+function pill(e) {
+  const s = status(e), next = () => short(e, s.w + e.step);
+  switch (s.k) {
+    case "ready": return `<span class="pill ready" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
+    case "long":  return `<span class="pill long" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
+    case "new":   return `<span class="pill new"><i>●</i>New weight</span>`;
+    case "build": return `<span class="pill build">${dots(s.at, s.n)}${s.at} of ${s.n}</span>`;
+    default: return "";
+  }
+}
+
+/* ---------- changes and sync ---------- */
+function applyLocal(op) {
+  const i = DATA.log.findIndex(e => e.id === op.id && e.date === op.date);
+  if (op.op === "del") { if (i >= 0) DATA.log.splice(i, 1); }
+  else if (i >= 0) DATA.log[i].amount = op.amount;
+  else DATA.log.push({ id:op.id, date:op.date, week:mondayOf(op.date), amount:op.amount });
+}
+function change(op) {
+  PENDING = PENDING.filter(p => !(p.id === op.id && p.date === op.date));   // one op per exercise and day
+  PENDING.push(op);
+  applyLocal(op);
+  store.set("liftlog:pending", PENDING); store.set("liftlog:data", DATA);
+  render(); clearTimeout(change.t); change.t = setTimeout(sync, 700);
+}
+function accept(j) {
+  DATA = { exercises:j.exercises, log:j.log };
+  PENDING.forEach(applyLocal);
+  store.set("liftlog:data", DATA);
+}
+let busy = false;
+async function sync() {
+  if (busy) return;
+  busy = true;
+  const sent = PENDING.slice();
+  try {
+    const r = sent.length
+      ? await fetch(API, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body:JSON.stringify({ ops:sent }) })
+      : await fetch(API + "?t=" + Date.now());
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "not ok");
+    PENDING = PENDING.filter(p => !sent.includes(p));   // anything changed meanwhile stays queued
+    store.set("liftlog:pending", PENDING);
+    accept(j);
+    SYNC.state = "ok";
+  } catch (err) {
+    SYNC.state = navigator.onLine ? "error" : "offline";
+  }
+  busy = false;
+  render();
+  if (PENDING.length && SYNC.state === "ok") sync();
+}
+["online", "focus", "pageshow"].forEach(ev => addEventListener(ev, sync));
+document.addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
+setInterval(() => { if (!document.hidden) sync(); }, 120000);
+
+/* ---------- Today's groups: remembered for the day, else the two done least recently ---------- */
+function todayGroups() {
+  const saved = store.get("liftlog:groups", null);
+  if (saved && saved.date === today()) return saved.groups.filter(g => M.groups.includes(g));
+  const done = M.groups.filter(g => inGroup(g).some(e => todayEntry(e.id)));
+  if (done.length) return done;
+  const last = g => inGroup(g).map(e => (hist(e.id).at(-1) || {}).day || "").sort().at(-1) || "";
+  return [...M.groups].sort((a, b) => last(a) < last(b) ? -1 : last(a) > last(b) ? 1 : 0).slice(0, 2)
+    .sort((a, b) => M.groups.indexOf(a) - M.groups.indexOf(b));
+}
+
+/* ---------- views ---------- */
+const ui = { tab:"today", week:0, hpage:0 };
+const seg = (opts, cur, act, cls = "") => `<div class="seg ${cls}" role="group">${opts.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
+
+function ago(e) {
+  if (e.weekOnly) {
+    const n = Math.round(daysBetween(e.week, mondayOf(today())) / 7);
+    return n === 0 ? "This week" : n === 1 ? "Last week" : `${n} weeks ago`;
+  }
+  const n = daysBetween(e.date, today());
+  return n === 0 ? "Today" : n === 1 ? "Yesterday" : `${n} days ago`;
+}
+
+function vToday() {
+  const groups = todayGroups(), list = M.ex.filter(e => groups.includes(e.group));
+  const picker = `<div class="seg small" role="group" aria-label="Groups today">${M.groups.map(g => `<button data-act="grp" data-v="${g}" aria-pressed="${groups.includes(g)}">${g}</button>`).join("")}</div>`;
+  return `<header class="apphead"><h2>${groups.join(" + ") || "Pick a group"}</h2>${picker}</header>
+    <ol class="checklist">${list.map(e => {
+      const t = todayEntry(e.id), l = lastEntry(e.id);
+      const sub = l ? `${ago(l)}${l.amount != null ? ` (${amt(e, l.amount)})` : ""}` : "First time";
+      const ctl = e.kind === "bodyweight" ? `<span class="bwtag">Bodyweight</span>`
+        : `<div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${short(e, curAmount(e))}${e.kind === "time" ? "" : "<small> lb</small>"}</output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>`;
+      return `<li class="row ${t ? "done" : ""}">
+        <div class="row-top"><div><span class="ex-name">${e.name}</span><span class="ago">${sub}</span></div>${pill(e)}</div>
+        <div class="row-ctl">${ctl}<button class="check" data-act="check" data-id="${e.id}" aria-pressed="${!!t}">${t ? "✓ Done" : e.kind === "time" ? "✓ 3 sets" : "✓ 3×10"}</button></div></li>`;
+    }).join("")}</ol>`;
+}
+
+const cols = `<colgroup><col class="nmcol">${"<col>".repeat(8)}</colgroup>`;
+const nav = (title, act, canBack, canFwd) => `<div class="weeknav"><button data-act="${act}" data-v="-1" aria-label="Earlier" ${canBack ? "" : "disabled"}>‹</button>
+  <b>${title}</b><button data-act="${act}" data-v="1" aria-label="Later" ${canFwd ? "" : "disabled"}>›</button></div>`;
+const grpRow = g => `<tr class="grp"><th colspan="9">${g}</th></tr>`;
+
+function vWeek() {
+  const ws = addDays(mondayOf(today()), 7 * ui.week), days = Array.from({ length:7 }, (_, i) => addDays(ws, i));
+  const head = `<tr><th></th><th>Last<br>wk</th>${days.map((d, i) => `<th class="${d === today() ? "today" : ""}">${WL[i]}<span class="d">${parse(d).getDate()}</span></th>`).join("")}</tr>`;
+  const rows = M.groups.map(g => grpRow(g) + inGroup(g).map(e => {
+    const h = hist(e.id), before = h.filter(x => x.day < ws).at(-1);
+    const lw = before ? (before.amount == null ? "✓" : short(e, before.amount)) : "–";
+    const cells = days.map((d, i) => {
+      // week-only rows from the spreadsheet import sit on that week's Monday
+      const en = h.filter(x => x.date === d || (x.weekOnly && x.week === ws && i === 0)).at(-1);
+      const cls = d === today() ? "tcol" : "";
+      if (!en) return `<td class="c ${cls}"></td>`;
+      const prior = h[h.indexOf(en) - 1];
+      const up = en.amount != null && prior && prior.amount != null && prior.amount < en.amount;
+      const tip = `${e.name}, ${en.weekOnly ? `week of ${fmt(en.week)} (day not recorded)` : fmt(d)}: ${en.amount == null ? "bodyweight" : amt(e, en.amount)}`;
+      return `<td class="c on ${cls}" data-tip="${tip}">${en.amount == null ? "✓" : short(e, en.amount)}${up ? "<sup>▲</sup>" : ""}</td>`;
+    }).join("");
+    return `<tr><th class="nm">${e.name}</th><td class="c lw">${lw}</td>${cells}</tr>`;
+  }).join("")).join("");
+  return nav(`${fmt(ws)} – ${fmt(addDays(ws, 6))}`, "wk", ws > M.first, ui.week < 0) +
+    `<table class="grid">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+
+/* Historical: 8 weeks per page; each row colored low (blue) → green → high
+   (yellow) against that exercise's whole history, so a week keeps its color
+   while paging. */
+const heat = t => t <= 0.5
+  ? `color-mix(in oklab, var(--s1) ${Math.round(t * 200)}%, var(--s0))`
+  : `color-mix(in oklab, var(--s2) ${Math.round((t - 0.5) * 200)}%, var(--s1))`;
+function vHist() {
+  const newest = addDays(mondayOf(today()), -56 * ui.hpage);
+  const wk = Array.from({ length:8 }, (_, i) => addDays(newest, -7 * (7 - i)));
+  const head = `<tr><th></th>${wk.map((w, i) => { const d = parse(w); return `<th>${i === 0 || d.getDate() <= 7 ? MON[d.getMonth()] : "&nbsp;"}<span class="d">${d.getDate()}</span></th>`; }).join("")}</tr>`;
+  const rows = M.groups.map(g => grpRow(g) + inGroup(g).map(e => {
+    const h = hist(e.id), vals = h.map(x => x.amount).filter(v => v != null);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const cells = wk.map(w => {
+      const en = h.filter(x => x.week === w).at(-1);
+      if (!en) return `<td class="c"></td>`;
+      const tip = `${e.name}, week of ${fmt(w)}: ${en.amount == null ? "bodyweight" : amt(e, en.amount)}`;
+      if (en.amount == null) return `<td class="c on" data-tip="${tip}">✓</td>`;
+      const t = hi > lo ? (en.amount - lo) / (hi - lo) : 0.5;
+      return `<td class="c heat" style="background:${heat(t)}" data-tip="${tip}">${short(e, en.amount)}</td>`;
+    }).join("");
+    return `<tr><th class="nm">${e.name}</th>${cells}</tr>`;
+  }).join("")).join("");
+  return nav(`${fmt(wk[0])} – ${fmt(addDays(wk[7], 6))}`, "hp", wk[0] > M.first, ui.hpage > 0) +
+    `<table class="grid">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+
+const $top = document.getElementById("top"), $screen = document.getElementById("screen");
+function render() {
+  const waiting = PENDING.length;
+  const badge = SYNC.state === "offline" ? `<span class="sync">Offline${waiting ? ` · ${waiting} to save` : ""}</span>`
+    : SYNC.state === "error" ? `<span class="sync bad">Couldn't reach the Sheet${waiting ? ` · ${waiting} to save` : ""}</span>` : "";
+  $top.innerHTML = seg([["today", "Today"], ["week", "This Week"], ["hist", "Historical"]], ui.tab, "tab") + badge;
+  if (!DATA) { $screen.innerHTML = `<p class="empty">${SYNC.state === "ok" ? "Loading your log…" : "Couldn't load your log. Check your connection."}</p>`; return; }
+  model();
+  $screen.innerHTML = { today:vToday, week:vWeek, hist:vHist }[ui.tab]();
+}
+
+document.addEventListener("click", ev => {
+  const el = ev.target.closest("[data-act]"); if (!el || !DATA) return;
+  const { act, id, v } = el.dataset, e = id && M.byId[id];
+  switch (act) {
+    case "tab": ui.tab = v; scrollTo(0, 0); break;
+    case "grp": {
+      const cur = todayGroups(), next = cur.includes(v) ? cur.filter(g => g !== v) : M.groups.filter(g => g === v || cur.includes(g));
+      store.set("liftlog:groups", { date:today(), groups:next });
+      break;
+    }
+    case "wk": ui.week = Math.min(0, ui.week + +v); break;
+    case "hp": ui.hpage = Math.max(0, ui.hpage - +v); break;
+    case "minus": case "plus": {
+      const n = Math.max(0, curAmount(e) + (act === "plus" ? e.step : -e.step));
+      draft[id] = n;
+      if (todayEntry(id)) return change({ op:"set", id, date:today(), amount:n });
+      break;
+    }
+    case "check":
+      hideTip();
+      return change(todayEntry(id) ? { op:"del", id, date:today() }
+        : { op:"set", id, date:today(), amount:e.kind === "bodyweight" ? null : curAmount(e) });
+  }
+  hideTip(); render();
+});
+
+/* tooltip: hover on desktop, tap on phone */
+const tip = document.getElementById("tip");
+function showTip(el, x, y) {
+  tip.textContent = el.dataset.tip; tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  tip.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, x - r.width / 2)) + "px";
+  tip.style.top = Math.max(8, y - r.height - 12) + "px";
+}
+function hideTip() { tip.hidden = true; }
+document.addEventListener("pointermove", ev => { if (ev.pointerType !== "mouse") return; const el = ev.target.closest("[data-tip]"); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
+document.addEventListener("pointerdown", ev => { if (ev.pointerType === "mouse") return; const el = ev.target.closest("[data-tip]"); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
+addEventListener("scroll", hideTip, { passive:true });
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+render();
+sync();
+</script>
+</body>
+</html>
