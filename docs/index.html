@@ -49,10 +49,6 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pill.ready{background:var(--good-soft);color:var(--good)}
 .pill.new{background:var(--accent-soft);color:var(--accent)}
 .pill.long{background:var(--warn-soft);color:var(--warn)}
-.pill.build{background:var(--surface-2);color:var(--ink-2)}
-.dots{display:inline-flex;gap:2px}
-.dots b{width:6px;height:6px;border-radius:50%;border:1.5px solid currentColor}
-.dots b.on{background:currentColor}
 
 /* Exercise cards (Push / Pull / Legs) */
 .checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -182,14 +178,13 @@ function status(e) {
   if (prev !== null && prev < w && at <= 2) return { k:"new", w, at, n };
   return { k:"build", w, at, n };
 }
-const dots = (on, n) => `<span class="dots" aria-hidden="true">${Array.from({ length:n }, (_, i) => `<b class="${i < on ? "on" : ""}"></b>`).join("")}</span>`;
+// No tag while working toward Ready (he never wants the "1 of 3" count).
 function pill(e) {
   const s = status(e), next = () => short(e, s.w + e.step);
   switch (s.k) {
     case "ready": return `<span class="pill ready" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
     case "long":  return `<span class="pill long" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
     case "new":   return `<span class="pill new"><i>●</i>${e.kind === "reps" ? "More reps" : "New weight"}</span>`;
-    case "build": return `<span class="pill build">${dots(s.at, s.n)}${s.at} of ${s.n}</span>`;
     default: return "";
   }
 }
@@ -258,13 +253,18 @@ function go(tab) {
 /* ---------- views ---------- */
 const seg = (opts, cur, act, cls = "") => `<div class="seg ${cls}" role="group">${opts.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
 
+// Today / Yesterday / the weekday name for the last 6 days / "9 days ago".
+// Week-only import rows have no day: this week's count as that Monday, older
+// ones say "Last week" / "3 weeks ago".
+const WEEKDAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function ago(e) {
-  if (e.weekOnly) {
+  const d = e.weekOnly && e.week === mondayOf(today()) ? e.week : e.date;
+  if (!d) {
     const n = Math.round(daysBetween(e.week, mondayOf(today())) / 7);
-    return n === 0 ? "This week" : n === 1 ? "Last week" : `${n} weeks ago`;
+    return n === 1 ? "Last week" : `${n} weeks ago`;
   }
-  const n = daysBetween(e.date, today());
-  return n === 0 ? "Today" : n === 1 ? "Yesterday" : `${n} days ago`;
+  const n = daysBetween(d, today());
+  return n === 0 ? "Today" : n === 1 ? "Yesterday" : n < 7 ? WEEKDAY[parse(d).getDay()] : `${n} days ago`;
 }
 
 // A group's cards: name and tag on top; below, when it was last done over what

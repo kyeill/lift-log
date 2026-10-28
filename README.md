@@ -23,7 +23,8 @@ animation; he found it glitchy). The app opens on the group last used today,
 else the first one (Push).
 
 - **A group tab** — one card per exercise: name and weight tag on top; below,
-  when it was last done over what it was (left), − / + for today (middle), and
+  when it was last done ("Today", "Yesterday", the weekday for the last 6 days,
+  then "9 days ago") over what it was (left), − / + for today (middle), and
   ✓ (right). ✓ logs it; tapping it again un-logs it, and − / + on a logged card
   change the logged amount.
 - **The date** under the tabs (group tabs only) is the day being logged:
@@ -38,10 +39,11 @@ else the first one (Push).
 
 (Day one had a This Week tab and a group picker; he replaced both.)
 
-The weight tag on each card ("Ready for 130", "New weight", "1 of 3") counts
-sessions at the current weight. It takes 2, 3 or 4 depending on how big one
-step is for that exercise (≤7.5%, ≤15%, bigger). Eight or more sessions at one
-weight shows the same "Ready for" tag in yellow.
+The weight tag on each card ("Ready for 130" or "New weight") counts sessions
+at the current weight. It takes 2, 3 or 4 depending on how big one step is for
+that exercise (≤7.5%, ≤15%, bigger). Eight or more sessions at one weight shows
+the same "Ready for" tag in yellow. In between there is no tag (he dropped the
+"1 of 3" count).
 
 ## The data: the Google Sheet
 
