@@ -241,15 +241,21 @@ async function sync() {
 document.addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
 setInterval(() => { if (!document.hidden) sync(); }, 120000);
 
-/* ---------- Today's groups: remembered for the day, else the two done least recently ---------- */
+/* ---------- Today's groups ----------
+   The first view of the day picks them (groups already logged today on another
+   device, else the two done least recently) and remembers the pick, so logging
+   an exercise never reshuffles the list. The picker changes it. */
 function todayGroups() {
   const saved = store.get("liftlog:groups", null);
   if (saved && saved.date === today()) return saved.groups.filter(g => M.groups.includes(g));
-  const done = M.groups.filter(g => inGroup(g).some(e => todayEntry(e.id)));
-  if (done.length) return done;
-  const last = g => inGroup(g).map(e => (hist(e.id).at(-1) || {}).day || "").sort().at(-1) || "";
-  return [...M.groups].sort((a, b) => last(a) < last(b) ? -1 : last(a) > last(b) ? 1 : 0).slice(0, 2)
-    .sort((a, b) => M.groups.indexOf(a) - M.groups.indexOf(b));
+  let pick = M.groups.filter(g => inGroup(g).some(e => todayEntry(e.id)));
+  if (!pick.length) {
+    const last = g => inGroup(g).map(e => (hist(e.id).at(-1) || {}).day || "").sort().at(-1) || "";
+    pick = [...M.groups].sort((a, b) => last(a) < last(b) ? -1 : last(a) > last(b) ? 1 : 0).slice(0, 2)
+      .sort((a, b) => M.groups.indexOf(a) - M.groups.indexOf(b));
+  }
+  store.set("liftlog:groups", { date:today(), groups:pick });
+  return pick;
 }
 
 /* ---------- views ---------- */
