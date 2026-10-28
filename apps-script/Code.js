@@ -5,13 +5,13 @@
  * columns are found by their header, so they can be moved:
  *
  *   Exercises  Name | Group | Kind | Step | Id
- *              Row order is the order in the app. Kind is weight, time or
- *              bodyweight. Step is how far − / + moves (blank = 10 lb, or 15
- *              seconds for time). Id ties the log to the exercise, so renaming
+ *              Row order is the order in the app. Kind is weight, reps, time
+ *              or bodyweight. Step is how far − / + moves (blank = 10 lb,
+ *              1 rep, or 15 seconds). Id ties the log to the exercise, so renaming
  *              keeps the history; a new row gets an Id on the next sync.
  *   Log        Date | Week of | Exercise | Amount | Id | Saved
- *              One row per exercise per day. Amount is total lb, seconds for
- *              time, blank for bodyweight. Rows from the spreadsheet import
+ *              One row per exercise per day. Amount is total lb, reps,
+ *              seconds for time, blank for bodyweight. Rows from the spreadsheet import
  *              have a Week of but no Date (the day was not recorded).
  *
  *   GET                                   -> {ok, exercises, log}
@@ -105,8 +105,8 @@ function readExercises_(sh) {
     }
     used[id] = true;
     var kind = String(r[t.col.Kind] || "weight").trim().toLowerCase();
-    if (["weight", "time", "bodyweight"].indexOf(kind) < 0) kind = "weight";
-    var step = Number(r[t.col.Step]) || (kind === "time" ? 15 : 10);
+    if (["weight", "reps", "time", "bodyweight"].indexOf(kind) < 0) kind = "weight";
+    var step = Number(r[t.col.Step]) || ({ time: 15, reps: 1 }[kind] || 10);
     out.push({ id: id, name: name, group: String(r[t.col.Group] || "Other").trim(), kind: kind, step: step });
   });
   return out;

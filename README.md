@@ -16,16 +16,17 @@ like an app.
 
 ## The app
 
-Three tabs, dark all the time (his call, whatever the phone's setting).
+Two tabs, dark all the time (his call, whatever the phone's setting).
 
-- **Today** — the exercises in the groups picked for today (the picker
-  remembers the day's choice; otherwise it suggests the two groups done least
-  recently). Each card says when it was last done and at what weight, has
-  − / + and one ✓ button. ✓ logs it; tapping again un-logs it.
-- **This Week** — exercise × day grid with a Last-week column; ‹ › for earlier
-  weeks. ▲ marks a move up.
-- **Historical** — 8 weeks per page, ‹ › to page back. Each row is colored
-  blue (low) → green → yellow (high) against that exercise's whole history.
+- **Today** — Push / Pull / Legs as three radio buttons at the top, one group
+  at a time; Push unless another was picked today. Each card says when the
+  exercise was last done and at what weight or reps, has − / + and one ✓
+  button. ✓ logs it; tapping again un-logs it.
+- **Historical** — 8 weeks per page, ‹ › to page back. Each weight row is
+  colored blue (low) → green → yellow (high) against that exercise's whole
+  history. Reps rows (Bench Dips, Push Up Plus) have no color.
+
+(A This Week tab existed on day one; he dropped it.)
 
 The weight tag on each card ("Ready for 130", "New weight", "1 of 3") counts
 sessions at the current weight. It takes 2, 3 or 4 depending on how big one
@@ -39,12 +40,12 @@ weight shows the same "Ready for" tag in yellow.
 Both tabs are safe to edit by hand; columns are found by header name.
 
 - **Exercises** — `Name | Group | Kind | Step | Id`. Row order is the app's
-  order, groups appear in the order they first occur. Kind is `weight`, `time`
-  (seconds) or `bodyweight`. Step is how far − / + moves (blank = 10 lb, or 15 s
-  for time). **Rename freely, but leave Id alone**: it ties the log to the
+  order, groups appear in the order they first occur. Kind is `weight`, `reps`,
+  `time` (seconds) or `bodyweight`. Step is how far − / + moves (blank = 10 lb,
+  1 rep, or 15 s). **Rename freely, but leave Id alone**: it ties the log to the
   exercise. A new row gets an Id on the next sync.
 - **Log** — `Date | Week of | Exercise | Amount | Id | Saved`, one row per
-  exercise per day. Rows from the spreadsheet import have a Week of but no Date.
+  exercise per day; Amount is lb, reps or seconds. Rows from the spreadsheet import have a Week of but no Date.
 
 The page keeps a copy in `localStorage`, so it opens instantly and works with
 no signal; changes queue and are sent when there is a connection (on load,
@@ -84,7 +85,8 @@ deployment, so the address in the page never changes. `.clasp.json` (script id
   `doGet`), deploy, make one GET, then delete it and deploy again. Done once on
   2026-10-27 for his Push / Pull / Legs list (renames kept Ids; Around the World
   became Kettlebell; Deadlift, Front Squat and Wall Sits removed from the tab,
-  their Log rows left in the Sheet but unread). `Seed.js` still has the original
+  their Log rows left in the Sheet but unread). Used again the same day to make
+  Bench Dips and Push Up Plus `reps` with Step 5 (his dips went 15 → 20). `Seed.js` still has the original
   names; it is only used on an empty Sheet.
 - **The import is weekly**: one weight per exercise per week, no day. Those rows
-  sit on the week's Monday in This Week and count as one session each.
+  count as one session each.
