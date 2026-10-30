@@ -1,76 +1,87 @@
 # Lift Log
 
-A small workout log for 3×10 lifting: what was done each session and at what
+A small workout log for 3×10 lifting: what was done each session, at what
 weight, and when each exercise is ready to move up. Live at
 https://kyeill.github.io/lift-log/ — add it to the phone's home screen to use it
 like an app.
 
 | Path | What it is |
 |------|------------|
-| `docs/index.html` | the whole app (hand-written, no build step), served by Pages from `main` |
+| `docs/index.html` | the whole app, hand-written with no build step; Pages serves `docs/` from `main` |
 | `docs/manifest.webmanifest`, `docs/sw.js` | make it installable and open offline |
-| `icons.py` | draws the icons into `docs/` (needs Pillow; bump `CACHE` in `sw.js` after) |
-| `apps-script/` | the web app the page reads and writes, bound to the "Lift Log" Google Sheet |
-| `data/history-import.*` | the one-time load from "Temp Exercise.xlsx" (Aug 24 – Oct 26 2026) |
-| `prototypes.html` | the clickable mockups the design was chosen from (fake data) |
+| `apps-script/` | the web app the page reads and writes, bound to the Google Sheet |
+| `icons.py` | redraws the icons (needs Pillow; bump `CACHE` in `sw.js` after) |
 
 ## The app
 
-Four tabs across the top, **Push · Pull · Legs · Historical** (one per group in
-the Exercises tab, then Historical), dark all the time (his call, whatever the
-phone's setting). A quick sideways swipe moves to the next or previous tab (no
-animation; he found it glitchy). The app opens on the group last used today,
-else the first one (Push).
+Tabs **Push · Pull · Legs · Historical**: one per group in the Sheet, then
+Historical. A quick sideways swipe changes tab (no animation). It opens on the
+group last used today, else the first. Always dark.
 
-- **A group tab** — one card per exercise: name and weight tag on top; below,
-  when it was last done ("Today", "Yesterday", the weekday for the last 6 days,
-  then "9 days ago") over what it was (left), − / + for today (middle), and
-  ✓ (right). ✓ logs it; tapping it again un-logs it, and − / + on a logged card
-  change the logged amount.
-- **The date** under the tabs (group tabs only) is the day being logged:
-  "Today · Oct 27", ‹ › to step, tap the label for the phone's date picker. It
-  turns yellow on any day but today and cannot go past today; reopening the app
-  goes back to today. "Last time" on each card is the last entry before that
-  day.
-- **Historical** — 8 weeks per page, ‹ › to page back. Each weight row is
-  colored blue (low) → green → yellow (high) against that exercise's whole
-  history. Reps rows (Bench Dips, Push Up Plus) have no color. Rows use the
-  Sheet's Short name when there is one.
+- **Group tab:** one card per exercise. Top: name and tag. Below: when it was
+  last done over what it was, − / + for the amount, ✓ to log. Tapping ✓ again
+  un-logs it; − / + on a logged card change the logged amount.
+- **Date** (group tabs only): the day being logged. ‹ › step a day; tapping the
+  label opens the date picker. Yellow on any day but today, never in the future.
+  "Last done" is the last entry before that day. Starting the app fresh goes
+  back to today.
+- **Historical:** 8 weeks per page, ‹ › to page back. Weight rows run blue (low)
+  → green → yellow (high) against that exercise's whole history; reps rows have
+  no color. Tap a cell for its details.
 
-(Day one had a This Week tab and a group picker; he replaced both.)
+**Last done** reads Today, Yesterday, the weekday for 2–6 days ago, then "9 days
+ago". Import rows have no day: this week's count as Monday, older ones say "Last
+week" or "3 weeks ago".
 
-The weight tag on each card ("Ready for 130" or "New weight") counts sessions
-at the current weight. It takes 2, 3 or 4 depending on how big one step is for
-that exercise (≤7.5%, ≤15%, bigger). Eight or more sessions at one weight shows
-the same "Ready for" tag in yellow. In between there is no tag (he dropped the
-"1 of 3" count).
+**Tags** look at sessions in a row at the current amount:
+
+| Tag | When |
+|-----|------|
+| New weight (More reps for reps) | moved up, with at most 2 sessions at the new amount, and not yet Ready |
+| Ready for # | 2, 3 or 4 sessions, by how big one step is for that exercise (≤7.5%, ≤15%, bigger) |
+| Ready for #, yellow | 8 or more sessions |
+| none | anything else |
 
 ## The data: the Google Sheet
 
-"Lift Log" in Kyle's Drive
-(https://docs.google.com/spreadsheets/d/1_ndYlnhrI9IvHM2kL8lKwu4FVdHDpNZxWuW4e9W9zmM).
-Both tabs are safe to edit by hand; columns are found by header name.
+["Lift Log"](https://docs.google.com/spreadsheets/d/1_ndYlnhrI9IvHM2kL8lKwu4FVdHDpNZxWuW4e9W9zmM)
+in Kyle's Drive. Both tabs are safe to edit by hand; columns are found by header
+name.
 
-- **Exercises** — `Name | Group | Kind | Step | Id | Short`. Row order is the app's
-  order, groups appear in the order they first occur. Kind is `weight`, `reps`,
-  `time` (seconds) or `bodyweight`. Step is how far − / + moves (blank = 10 lb,
-  1 rep, or 15 s). **Rename freely, but leave Id alone**: it ties the log to the
-  exercise. A new row gets an Id on the next sync. Short
-  (optional) is the name Historical shows (Romanian, Bulgarian).
-- **Log** — `Date | Week of | Exercise | Amount | Id | Saved`, one row per
-  exercise per day; Amount is lb, reps or seconds. Rows from the spreadsheet import have a Week of but no Date.
+- **Exercises:** `Name | Group | Kind | Step | Id | Short`. This tab is the
+  app's config. Row order is the app's order; groups appear in the order they
+  first occur. Kind is `weight` or `reps` (blank = weight). Step is how far − / +
+  moves (blank = 10 lb or 1 rep). Short is an optional name for Historical. A new
+  row gets an Id on the next sync. **Rename freely, but never change an Id**: it
+  ties the log to the exercise.
+- **Log:** `Date | Week of | Exercise | Amount | Id | Saved`, one row per
+  exercise per day. Amount is total lb or reps. Rows without a number are skipped.
+  The history imported from "Temp Exercise.xlsx" (Aug 24 – Oct 26 2026) has a
+  Week of but no Date, one row per exercise per week, each counted as one session.
 
-The page keeps a copy in `localStorage`, so it opens instantly and works with
-no signal; changes queue and are sent when there is a connection (on load,
-coming back to the app, going online, and every 2 minutes). A badge under the
-tabs appears only when it is offline or cannot reach the Sheet.
+Rows for an exercise no longer on the Exercises tab stay in the Log but are not
+read (Deadlift, Front Squat).
 
-The web app (`apps-script/Code.js`): `GET` returns `{ok, exercises, log}`;
-`POST {ops:[{op:"set", id, date, amount}, {op:"del", id, date}]}` applies the
-changes and answers the same way. The page POSTs as text/plain to avoid a CORS
-preflight. Its address is `API` near the top of `docs/index.html`.
+## Sync
 
-Deploying a change to the script — clasp, from Claude's shell:
+The page keeps a copy in `localStorage`, so it opens with no signal. Changes
+apply at once and queue, then send after 0.7 s, and on load, on returning to the
+app, on going online, and every 2 minutes. A badge under the tabs appears only
+when offline or unable to reach the Sheet.
+
+The web app is `API` at the top of the script in `docs/index.html`:
+
+- `GET` returns `{ok, exercises, log}`.
+- `POST {ops:[{op:"set", id, date, amount}, {op:"del", id, date}]}` applies the
+  changes and answers the same way. The page sends it as text/plain to avoid a
+  CORS preflight, which Apps Script cannot answer.
+
+## Deploying
+
+The page: push to `main`; Pages rebuilds in about a minute. The service worker
+fetches the page fresh when online.
+
+The script, from Claude's shell, with clasp:
 
 ```bash
 export PATH="/c/Program Files/nodejs:/c/Users/kyleh/AppData/Roaming/npm:$PATH"
@@ -78,29 +89,27 @@ clasp -P "C:\Users\kyleh\My Drive\Documents\Claude\lift-log" push -f
 clasp -P "C:\Users\kyleh\My Drive\Documents\Claude\lift-log" create-deployment -i AKfycbw07XGcy6bStN_AnhQnrdrngdMappvgGmJ7lSxQxsvEJrMaX59-yOGjmqc3J5jZ4eJIlw -d "what changed"
 ```
 
-`create-deployment -i` makes a new version and repoints the existing
-deployment, so the address in the page never changes. `.clasp.json` (script id
+`create-deployment -i` repoints the existing deployment, so the page's address
+never changes. `.clasp.json` (script id
 `1RpgtGGj4nNQJea8f2DAqN0QuxSyl2eYCqFDufT2Q1GYQAKt8LBHbbAnb`) is gitignored.
 
-## Traps already paid for
+Local preview: the `lift-log` entry in the parent folder's `.claude/launch.json`
+(port 8765), then open `/docs/`. It talks to the real Sheet unless `fetch` is
+mocked.
 
-- **`clasp create-script` overwrites `appsscript.json`** with a bare default.
-  The manifest must keep `executeAs: USER_DEPLOYING`, `access:
-  ANYONE_ANONYMOUS` and the `spreadsheets.currentonly` scope, or the page's
-  calls are refused.
-- **A new script answers with a Google sign-in page until Kyle runs `setup()`
-  once in the editor** and approves the permission. clasp's own login does not
-  count. The same is true after a change that adds a scope.
-- **The log is readable by anyone with the web app address** (it is in the
-  page, and the repo is public). Accepted: it holds exercise names and weights.
-- **Changing the Exercises tab from here, without Kyle:** there is no
-  Sheets API connector. Push a one-time `migrate_()` (own file, called from
-  `doGet`), deploy, make one GET, then delete it and deploy again. Done once on
-  2026-10-27 for his Push / Pull / Legs list (renames kept Ids; Around the World
-  became Kettlebell; Deadlift, Front Squat and Wall Sits removed from the tab,
-  their Log rows left in the Sheet but unread). Used again the same day to make
-  Bench Dips and Push Up Plus `reps` with Step 5 (his dips went 15 → 20).
-  And once more to fill the new Short column for Romanian and Bulgarian. `Seed.js` still has the original
-  names; it is only used on an empty Sheet.
-- **The import is weekly**: one weight per exercise per week, no day. Those rows
-  count as one session each.
+## Traps
+
+- **`clasp create-script` overwrites `appsscript.json`.** The manifest must keep
+  `executeAs: USER_DEPLOYING`, `access: ANYONE_ANONYMOUS` and the
+  `spreadsheets.currentonly` scope, or the page's calls are refused.
+- **A new script, or a change that adds a scope, answers with a Google sign-in
+  page until Kyle runs `setup()` once in the editor** and approves it. clasp's
+  login does not count.
+- **Anyone with the web app address can read and change the log.** The address
+  is in this public repo. Accepted: it holds only exercise names and weights.
+- **There is no Sheets connector, so editing the Sheet from here takes a
+  one-time script.** Add `apps-script/Migrate.js` with a `migrate_()`, call it at
+  the top of `doGet`, deploy, make one GET, then remove both and deploy again.
+- **Rebuilding from nothing:** the import was removed from the repo once the Sheet
+  held it. `setup()` builds empty tabs; the original rows are in git at `4f37b3b`
+  (`data/history-import.csv`, `apps-script/Seed.js`).

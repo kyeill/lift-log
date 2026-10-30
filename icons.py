@@ -1,4 +1,4 @@
-"""Draw the app icons into docs/: a dumbbell, white on the app's blue.
+"""Draw the app icons into docs/: a white dumbbell on blue.
 
 Run by hand when the mark changes (needs Pillow), then bump CACHE in docs/sw.js.
   icon-192.png, icon-512.png  full-bleed, purpose "any maskable": the mark stays

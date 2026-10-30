@@ -5,14 +5,14 @@
  * columns are found by their header, so they can be moved:
  *
  *   Exercises  Name | Group | Kind | Step | Id | Short
- *              Row order is the order in the app. Kind is weight, reps, time
- *              or bodyweight. Step is how far − / + moves (blank = 10 lb,
- *              1 rep, or 15 seconds). Id ties the log to the exercise, so renaming
- *              keeps the history; a new row gets an Id on the next sync.
- *              Short (optional) is the name the Historical grid shows.
+ *              Row order is the order in the app. Kind is weight or reps
+ *              (blank = weight). Step is how far − / + moves (blank = 10 lb or
+ *              1 rep). Id ties the log to the exercise, so renaming keeps the
+ *              history; a new row gets an Id on the next sync. Short (optional)
+ *              is the name the Historical grid shows.
  *   Log        Date | Week of | Exercise | Amount | Id | Saved
- *              One row per exercise per day. Amount is total lb, reps,
- *              seconds for time, blank for bodyweight. Rows from the spreadsheet import
+ *              One row per exercise per day. Amount is total lb or reps; a row
+ *              without a number is skipped. Rows from the spreadsheet import
  *              have a Week of but no Date (the day was not recorded).
  *
  *   GET                                   -> {ok, exercises, log}
@@ -23,35 +23,17 @@
  * preflight, which Apps Script cannot answer.
  *
  * Deployed with clasp (see the README); runs as Kyle, callable by anyone.
- * setup() is run once from the editor: it asks for permission, builds the two
- * tabs and loads the history in Seed.js if the Log is empty.
  */
 
 var EX_HEAD = ["Name", "Group", "Kind", "Step", "Id", "Short"];
 var LOG_HEAD = ["Date", "Week of", "Exercise", "Amount", "Id", "Saved"];
 var DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+// Run from the editor: asks for permission and builds any missing tab.
 function setup() {
   var ss = SpreadsheetApp.getActive();
-  var ex = tab_(ss, "Exercises", EX_HEAD), log = tab_(ss, "Log", LOG_HEAD);
-  log.getRange("A:B").setNumberFormat("@");
-  if (ex.getLastRow() < 2) {
-    ex.getRange(2, 1, SEED_EXERCISES.length, 5).setValues(SEED_EXERCISES.map(function (x) {
-      return [x.name, x.group, x.kind, x.step || "", x.id];
-    }));
-  }
-  if (log.getLastRow() < 2) {
-    var names = {};
-    SEED_EXERCISES.forEach(function (x) { names[x.id] = x.name; });
-    var now = new Date();
-    log.getRange(2, 1, SEED_LOG.length, 6).setValues(SEED_LOG.map(function (r) {
-      return ["", r.week, names[r.id], r.amount, r.id, now];
-    }));
-  }
-  var blank = ss.getSheetByName("Sheet1");
-  if (blank && ss.getSheets().length > 2 && blank.getLastRow() === 0) ss.deleteSheet(blank);
-  ex.autoResizeColumns(1, 5);
-  return "Exercises: " + (ex.getLastRow() - 1) + ", Log: " + (log.getLastRow() - 1);
+  tab_(ss, "Exercises", EX_HEAD);
+  tab_(ss, "Log", LOG_HEAD).getRange("A:B").setNumberFormat("@");
 }
 
 function doGet(e) {
@@ -68,7 +50,7 @@ function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
-    apply_((body.ops || []).slice(0, 500));
+    apply_(body.ops || []);
     return json_(read_());
   } finally {
     lock.releaseLock();
@@ -87,9 +69,9 @@ function read_() {
     var id = String(r[t.col.Id] || "").trim();
     if (!known[id]) return;
     var date = day_(r[t.col.Date]), week = day_(r[t.col["Week of"]]) || (date && monday_(date));
-    if (!week) return;
     var a = r[t.col.Amount];
-    log.push({ id: id, date: date || null, week: week, amount: a === "" || a === null ? null : Number(a) });
+    if (!week || a === "" || isNaN(a)) return;
+    log.push({ id: id, date: date || null, week: week, amount: Number(a) });
   });
   return { ok: true, exercises: exercises, log: log };
 }
@@ -105,9 +87,8 @@ function readExercises_(sh) {
       sh.getRange(i + 2, t.col.Id + 1).setValue(id);
     }
     used[id] = true;
-    var kind = String(r[t.col.Kind] || "weight").trim().toLowerCase();
-    if (["weight", "reps", "time", "bodyweight"].indexOf(kind) < 0) kind = "weight";
-    var step = Number(r[t.col.Step]) || ({ time: 15, reps: 1 }[kind] || 10);
+    var kind = String(r[t.col.Kind]).trim().toLowerCase() === "reps" ? "reps" : "weight";
+    var step = Number(r[t.col.Step]) || (kind === "reps" ? 1 : 10);
     var x = { id: id, name: name, group: String(r[t.col.Group] || "Other").trim(), kind: kind, step: step };
     var short = String(r[t.col.Short] || "").trim();
     if (short) x.short = short;
@@ -138,21 +119,18 @@ function apply_(ops) {
       if (row) { doomed.push(row); delete at[key]; }
       return;
     }
-    if (o.op !== "set") return;
-    var amount = o.amount === null || o.amount === undefined || o.amount === "" ? "" : Number(o.amount);
-    if (amount !== "" && !isFinite(amount)) return;
+    if (o.op !== "set" || typeof o.amount !== "number") return;
     if (row) {
-      sh.getRange(row, t.col.Amount + 1).setValue(amount);
+      sh.getRange(row, t.col.Amount + 1).setValue(o.amount);
       sh.getRange(row, t.col.Saved + 1).setValue(now);
     } else {
-      var line = [];
+      var line = new Array(t.width).fill("");
       line[t.col.Date] = date;
       line[t.col["Week of"]] = monday_(date);
       line[t.col.Exercise] = names[id];
-      line[t.col.Amount] = amount;
+      line[t.col.Amount] = o.amount;
       line[t.col.Id] = id;
       line[t.col.Saved] = now;
-      for (var c = 0; c < t.width; c++) if (line[c] === undefined) line[c] = "";
       appends.push(line);
     }
   });

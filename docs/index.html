@@ -12,12 +12,13 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <style>
 /* Layout: one column, phone first; tabs pinned at the top, the open tab under them.
    Dark all the time, whatever the phone's setting (Kyle's call). */
 :root{
-  --bg:#181d24; --surface:#181d24; --surface-2:#222932; --line:#2e3642;
+  --bg:#181d24; --surface-2:#222932; --line:#2e3642;
   --ink:#e7ebf0; --ink-2:#adb6c3; --ink-3:#7f8998;
   --accent:#5aa2ff; --accent-ink:#0b1626; --accent-soft:#1c3552;
   --good:#62c690; --good-soft:#1b3326; --warn:#e8ab4f; --warn-soft:#382b15; --bad:#ec8a76;
@@ -37,8 +38,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .screen{display:grid;gap:14px;align-content:start;padding-top:6px}
 .seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
 .seg button{border:0;background:none;padding:7px 14px;border-radius:999px;color:var(--ink-2);font-weight:600;font-size:14px}
-.seg.small button{padding:5px 11px;font-size:13px}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .16)}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .16)}
 .sync{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
 .sync.bad{background:var(--surface-2);color:var(--bad)}
 .empty{color:var(--ink-3);text-align:center;padding:40px 0}
@@ -52,7 +52,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* Exercise cards (Push / Pull / Legs) */
 .checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.row{border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:grid;gap:8px;background:var(--surface)}
+.row{border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:grid;gap:8px}
 .row.done{background:var(--accent-soft);border-color:transparent}
 .row-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .ex-name{font-weight:700;font-size:16px;min-width:0}
@@ -60,17 +60,16 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .last{display:grid;gap:1px;min-width:0;line-height:1.2}
 .last span{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .last b{font:600 17px/1.1 var(--display);color:var(--ink-2);font-variant-numeric:tabular-nums}
-.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
 .stepper button{border:0;background:var(--surface-2);width:40px;height:44px;font-size:22px;line-height:1}
 .stepper output{min-width:58px;text-align:center;font:700 23px/1 var(--display);font-variant-numeric:tabular-nums}
 .stepper small{font:500 11px var(--body);color:var(--ink-3)}
-.bwtag{font:600 18px var(--display);color:var(--ink-3);letter-spacing:.02em}
-.check{justify-self:end;border-radius:12px;height:44px;min-width:84px;padding:0 10px;font-weight:700;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent)}
+.check{justify-self:end;border-radius:12px;height:44px;min-width:84px;padding:0 10px;font-weight:700;border:1.5px solid var(--accent);background:var(--bg);color:var(--accent)}
 .check[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 
 /* Historical grid: fixed layout so it always fits the screen */
 .weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.weeknav button{border:1px solid var(--line);background:var(--surface);width:42px;height:42px;border-radius:12px;font-size:18px}
+.weeknav button{border:1px solid var(--line);background:var(--bg);width:42px;height:42px;border-radius:12px;font-size:18px}
 .weeknav button:disabled{opacity:.35;cursor:default}
 .weeknav b{font:700 22px/1 var(--display);text-align:center}
 table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:100%;font-variant-numeric:tabular-nums}
@@ -81,8 +80,6 @@ table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:
 .grid th.nm{text-align:left;font-weight:600;font-size:12.5px;color:var(--ink);line-height:1.15;padding-right:4px;overflow-wrap:anywhere}
 .grid tr.grp th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 2px;font-weight:600}
 .grid td.c{height:32px;border-radius:7px;font:600 14px/1 var(--display);white-space:nowrap;overflow:hidden}
-.grid td.c.on{background:var(--accent-soft);color:var(--ink)}
-.grid td.c.heat{color:var(--ink)}
 .grid td.c.plain{background:var(--surface-2);color:var(--ink-2)}
 
 /* date control above the exercise tabs: ‹ label › ; the label opens the phone's date picker */
@@ -93,7 +90,7 @@ table.grid{border-collapse:separate;border-spacing:2px;table-layout:fixed;width:
 .datepick.past{background:var(--warn-soft);color:var(--warn)}
 .datepick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer}
 
-.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 14px rgb(0 0 0 / .2)}
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 14px rgb(0 0 0 / .2)}
 </style>
 </head>
 <body>
@@ -116,32 +113,29 @@ const store = {
 };
 let DATA = store.get("liftlog:data", null);        // {exercises, log} as the server last sent it, plus local changes
 let PENDING = store.get("liftlog:pending", []);    // [{op, id, date, amount}] not yet acknowledged
-const SYNC = { state:"ok" };
+let syncState = "ok";                              // ok, offline or error
 
 /* ---------- dates (local, as yyyy-mm-dd) ---------- */
-const DAY_MS = 864e5;
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const WL = ["M","T","W","T","F","S","S"];
+const WEEKDAY = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const pad = n => String(n).padStart(2, "0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d, 12); };
 const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
 const mondayOf = s => addDays(s, -((parse(s).getDay() + 6) % 7));
 const fmt = s => { const d = parse(s); return `${MON[d.getMonth()]} ${d.getDate()}`; };
-const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / DAY_MS);
+const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
 const today = () => iso(new Date());
 
 /* ---------- the model, rebuilt from DATA on each render ---------- */
 let M;
 function model() {
-  const ex = DATA.exercises, byId = Object.fromEntries(ex.map(e => [e.id, e]));
-  const groups = [...new Set(ex.map(e => e.group))];
-  const byEx = {};
-  DATA.log.filter(e => byId[e.id]).map(e => ({ ...e, day:e.date || e.week, weekOnly:!e.date }))
-    .sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.weekOnly - b.weekOnly ? (a.weekOnly ? -1 : 1) : 0)
-    .forEach(e => (byEx[e.id] = byEx[e.id] || []).push(e));
-  const days = DATA.log.map(e => e.date || e.week).sort();
-  M = { ex, byId, groups, byEx, first:days.length ? mondayOf(days[0]) : mondayOf(today()) };
+  const ex = DATA.exercises, byId = Object.fromEntries(ex.map(e => [e.id, e])), byEx = {};
+  // oldest first; on the same day a week-only import row sorts before a dated one
+  const log = DATA.log.filter(e => byId[e.id]).map(e => ({ ...e, day:e.date || e.week, weekOnly:!e.date }))
+    .sort((a, b) => a.day.localeCompare(b.day) || b.weekOnly - a.weekOnly);
+  log.forEach(e => (byEx[e.id] ||= []).push(e));
+  M = { ex, byId, groups:[...new Set(ex.map(e => e.group))], byEx, first:mondayOf(log[0]?.day || today()) };
 }
 const hist = id => M.byEx[id] || [];
 const inGroup = g => M.ex.filter(e => e.group === g);
@@ -150,43 +144,25 @@ const entryOn = (id, d) => hist(id).find(e => e.date === d);
 const lastBefore = (id, d) => hist(id).filter(e => e.day <= d && e.date !== d).at(-1) || null;
 
 /* ---------- amounts ---------- */
-const mmss = s => `${Math.floor(s / 60)}:${pad(s % 60)}`;
-const short = (e, v) => e.kind === "time" ? mmss(v) : v;          // grid cells and tags
-const amt = (e, v) => e.kind === "time" ? mmss(v) : `${v} ${e.kind === "reps" ? "reps" : "lb"}`;    // sentences
+const unit = e => e.kind === "reps" ? "reps" : "lb";
 const draft = {};                                                  // "id|day" -> − / + before ✓
-function amountOn(e, d) {
-  const t = entryOn(e.id, d);
-  if (t) return t.amount;
-  if (draft[e.id + "|" + d] != null) return draft[e.id + "|" + d];
-  const l = lastBefore(e.id, d);
-  return l && l.amount != null ? l.amount : e.kind === "time" ? 60 : e.kind === "reps" ? 10 : 0;
-}
+const amountOn = (e, d) => entryOn(e.id, d)?.amount ?? draft[e.id + "|" + d] ?? lastBefore(e.id, d)?.amount ?? (e.kind === "reps" ? 10 : 0);
 
-/* ---------- the "Ready" rule ----------
-   Counts sessions at the current amount. How many it takes depends on how big
-   one step is for this exercise: 7.5% or less needs 2, up to 15% needs 3,
-   bigger needs 4. Eight or more = still "Ready", but yellow. */
+/* ---------- the tag on a card ----------
+   "Ready for #" counts sessions at the current amount. How many it takes depends
+   on how big one step is for this exercise: 7.5% or less needs 2, up to 15%
+   needs 3, bigger needs 4. Eight or more turns it yellow. "New weight" shows for
+   up to 2 sessions after moving up. Otherwise no tag. */
 const need = (w, step) => { const jump = w > 0 ? step / w : 1; return jump <= 0.075 ? 2 : jump <= 0.15 ? 3 : 4; };
-function status(e) {
-  const h = hist(e.id).filter(x => x.amount != null);
-  if (e.kind === "bodyweight" || !h.length) return { k:"none" };
-  const w = h.at(-1).amount;
-  let i = h.length - 1; while (i >= 0 && h[i].amount === w) i--;
-  const at = h.length - 1 - i, prev = i >= 0 ? h[i].amount : null, n = need(w, e.step);
-  if (at >= 8) return { k:"long", w, at, n };
-  if (at >= n) return { k:"ready", w, at, n };
-  if (prev !== null && prev < w && at <= 2) return { k:"new", w, at, n };
-  return { k:"build", w, at, n };
-}
-// No tag while working toward Ready (he never wants the "1 of 3" count).
 function pill(e) {
-  const s = status(e), next = () => short(e, s.w + e.step);
-  switch (s.k) {
-    case "ready": return `<span class="pill ready" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
-    case "long":  return `<span class="pill long" title="${s.at} sessions at ${short(e, s.w)}"><i>▲</i>Ready for ${next()}</span>`;
-    case "new":   return `<span class="pill new"><i>●</i>${e.kind === "reps" ? "More reps" : "New weight"}</span>`;
-    default: return "";
-  }
+  const h = hist(e.id);
+  if (!h.length) return "";
+  const w = h.at(-1).amount;
+  let i = h.length - 1; while (i >= 0 && h[i].amount === w) i--;   // h[i] = the last different amount
+  const at = h.length - 1 - i;
+  if (at >= need(w, e.step)) return `<span class="pill ${at >= 8 ? "long" : "ready"}"><i>▲</i>Ready for ${w + e.step}</span>`;
+  if (i >= 0 && h[i].amount < w && at <= 2) return `<span class="pill new"><i>●</i>${e.kind === "reps" ? "More reps" : "New weight"}</span>`;
+  return "";
 }
 
 /* ---------- changes and sync ---------- */
@@ -203,11 +179,6 @@ function change(op) {
   store.set("liftlog:pending", PENDING); store.set("liftlog:data", DATA);
   render(); clearTimeout(change.t); change.t = setTimeout(sync, 700);
 }
-function accept(j) {
-  DATA = { exercises:j.exercises, log:j.log };
-  PENDING.forEach(applyLocal);
-  store.set("liftlog:data", DATA);
-}
 let busy = false;
 async function sync() {
   if (busy) return;
@@ -221,14 +192,16 @@ async function sync() {
     if (!j.ok) throw new Error(j.error || "not ok");
     PENDING = PENDING.filter(p => !sent.includes(p));   // anything changed meanwhile stays queued
     store.set("liftlog:pending", PENDING);
-    accept(j);
-    SYNC.state = "ok";
+    DATA = { exercises:j.exercises, log:j.log };
+    PENDING.forEach(applyLocal);
+    store.set("liftlog:data", DATA);
+    syncState = "ok";
   } catch (err) {
-    SYNC.state = navigator.onLine ? "error" : "offline";
+    syncState = navigator.onLine ? "error" : "offline";
   }
   busy = false;
   render();
-  if (PENDING.length && SYNC.state === "ok") sync();
+  if (PENDING.length && syncState === "ok") sync();
 }
 ["online", "focus", "pageshow"].forEach(ev => addEventListener(ev, sync));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
@@ -240,23 +213,32 @@ function todayGroup() {
   const saved = store.get("liftlog:group", null);
   return saved && saved.date === today() && M.groups.includes(saved.group) ? saved.group : M.groups[0];
 }
-const ui = { tab:null, hpage:0, day:null };   // tab: a group name or "hist", null until the data is in; day: the date being logged, null = today
-const logDay = () => (ui.day = ui.day && ui.day < today() ? ui.day : today());
+const ui = { tab:null, hpage:0, day:null };   // tab: a group name or "hist"; day: a past date, null = today
+const logDay = () => ui.day && ui.day < today() ? ui.day : today();
+const setDay = d => { ui.day = d < today() ? d : null; };
 const tabList = () => [...M.groups, "hist"];
 const currentTab = () => (ui.tab = tabList().includes(ui.tab) ? ui.tab : todayGroup());
 function go(tab) {
   ui.tab = tab;
   if (tab !== "hist") store.set("liftlog:group", { date:today(), group:tab });
-  scrollTo(0, 0); hideTip(); render();
+  scrollTo(0, 0); render();
 }
 
 /* ---------- views ---------- */
-const seg = (opts, cur, act, cls = "") => `<div class="seg ${cls}" role="group">${opts.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
+const tabs = cur => `<div class="seg" role="group">${tabList().map(t => `<button data-act="tab" data-v="${t}" aria-pressed="${t === cur}">${t === "hist" ? "Historical" : t}</button>`).join("")}</div>`;
+
+// ‹ label › for the day being logged; the label is a transparent date input
+function dateBar() {
+  const d = logDay(), n = daysBetween(d, today());
+  const label = `${n === 0 ? "Today" : n === 1 ? "Yesterday" : WEEKDAY[parse(d).getDay()].slice(0, 3)} · ${fmt(d)}`;
+  return `<div class="datebar"><button data-act="day" data-v="-1" aria-label="Previous day">‹</button>
+    <label class="datepick${n ? " past" : ""}">${label}<input type="date" id="logday" value="${d}" max="${today()}" aria-label="Day to log"></label>
+    <button data-act="day" data-v="1" aria-label="Next day" ${n ? "" : "disabled"}>›</button></div>`;
+}
 
 // Today / Yesterday / the weekday name for the last 6 days / "9 days ago".
 // Week-only import rows have no day: this week's count as that Monday, older
 // ones say "Last week" / "3 weeks ago".
-const WEEKDAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function ago(e) {
   const d = e.weekOnly && e.week === mondayOf(today()) ? e.week : e.date;
   if (!d) {
@@ -268,23 +250,19 @@ function ago(e) {
 }
 
 // A group's cards: name and tag on top; below, when it was last done over what
-// it was (left), the − / + for today (middle), and ✓ (right).
+// it was (left), − / + for the day being logged (middle), and ✓ (right).
 function vGroup(group) {
+  const d = logDay();
   return `<ol class="checklist">${inGroup(group).map(e => {
-    const d = logDay(), t = entryOn(e.id, d), l = lastBefore(e.id, d);
-    const last = l ? `<span>${ago(l)}</span><b>${l.amount != null ? amt(e, l.amount) : "Done"}</b>` : `<span>First time</span><b>–</b>`;
-    const ctl = e.kind === "bodyweight" ? `<span class="bwtag">Bodyweight</span>`
-      : `<div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${short(e, amountOn(e, d))}${e.kind === "time" ? "" : `<small> ${e.kind === "reps" ? "reps" : "lb"}</small>`}</output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>`;
+    const t = entryOn(e.id, d), l = lastBefore(e.id, d);
+    const last = l ? `<span>${ago(l)}</span><b>${l.amount} ${unit(e)}</b>` : `<span>First time</span><b>–</b>`;
     return `<li class="row ${t ? "done" : ""}">
       <div class="row-top"><span class="ex-name">${e.name}</span>${pill(e)}</div>
-      <div class="row-ctl"><div class="last">${last}</div>${ctl}<button class="check" data-act="check" data-id="${e.id}" aria-pressed="${!!t}">${t ? "✓ Done" : e.kind === "weight" ? "✓ 3×10" : "✓ 3 sets"}</button></div></li>`;
+      <div class="row-ctl"><div class="last">${last}</div>
+        <div class="stepper"><button data-act="minus" data-id="${e.id}" aria-label="Less">−</button><output>${amountOn(e, d)}<small> ${unit(e)}</small></output><button data-act="plus" data-id="${e.id}" aria-label="More">+</button></div>
+        <button class="check" data-act="check" data-id="${e.id}" aria-pressed="${!!t}">${t ? "✓ Done" : e.kind === "weight" ? "✓ 3×10" : "✓ 3 sets"}</button></div></li>`;
   }).join("")}</ol>`;
 }
-
-const cols = `<colgroup><col class="nmcol">${"<col>".repeat(8)}</colgroup>`;
-const nav = (title, act, canBack, canFwd) => `<div class="weeknav"><button data-act="${act}" data-v="-1" aria-label="Earlier" ${canBack ? "" : "disabled"}>‹</button>
-  <b>${title}</b><button data-act="${act}" data-v="1" aria-label="Later" ${canFwd ? "" : "disabled"}>›</button></div>`;
-const grpRow = g => `<tr class="grp"><th colspan="9">${g}</th></tr>`;
 
 /* Historical: 8 weeks per page; each weight row colored low (blue) → green →
    high (yellow) against that exercise's whole history, so a week keeps its color
@@ -296,52 +274,42 @@ function vHist() {
   const newest = addDays(mondayOf(today()), -56 * ui.hpage);
   const wk = Array.from({ length:8 }, (_, i) => addDays(newest, -7 * (7 - i)));
   const head = `<tr><th></th>${wk.map((w, i) => { const d = parse(w); return `<th>${i === 0 || d.getDate() <= 7 ? MON[d.getMonth()] : "&nbsp;"}<span class="d">${d.getDate()}</span></th>`; }).join("")}</tr>`;
-  const rows = M.groups.map(g => grpRow(g) + inGroup(g).map(e => {
-    const h = hist(e.id), vals = h.map(x => x.amount).filter(v => v != null);
-    const lo = Math.min(...vals), hi = Math.max(...vals);
+  const rows = M.groups.map(g => `<tr class="grp"><th colspan="9">${g}</th></tr>` + inGroup(g).map(e => {
+    const h = hist(e.id), vals = h.map(x => x.amount), lo = Math.min(...vals), hi = Math.max(...vals);
     const cells = wk.map(w => {
       const en = h.filter(x => x.week === w).at(-1);
       if (!en) return `<td class="c"></td>`;
-      const tip = `${e.name}, week of ${fmt(w)}: ${en.amount == null ? "bodyweight" : amt(e, en.amount)}`;
-      if (en.amount == null) return `<td class="c on" data-tip="${tip}">✓</td>`;
+      const tip = `${e.name}, week of ${fmt(w)}: ${en.amount} ${unit(e)}`;
       if (e.kind === "reps") return `<td class="c plain" data-tip="${tip}">${en.amount}</td>`;   // reps: no color scale
       const t = hi > lo ? (en.amount - lo) / (hi - lo) : 0.5;
-      return `<td class="c heat" style="background:${heat(t)}" data-tip="${tip}">${short(e, en.amount)}</td>`;
+      return `<td class="c" style="background:${heat(t)}" data-tip="${tip}">${en.amount}</td>`;
     }).join("");
     return `<tr><th class="nm">${e.short || e.name}</th>${cells}</tr>`;
   }).join("")).join("");
-  return nav(`${fmt(wk[0])} – ${fmt(addDays(wk[7], 6))}`, "hp", wk[0] > M.first, ui.hpage > 0) +
-    `<table class="grid">${cols}<thead>${head}</thead><tbody>${rows}</tbody></table>`;
+  return `<div class="weeknav"><button data-act="hp" data-v="-1" aria-label="Earlier" ${wk[0] > M.first ? "" : "disabled"}>‹</button>
+    <b>${fmt(wk[0])} – ${fmt(addDays(wk[7], 6))}</b><button data-act="hp" data-v="1" aria-label="Later" ${ui.hpage > 0 ? "" : "disabled"}>›</button></div>
+    <table class="grid"><colgroup><col class="nmcol">${"<col>".repeat(8)}</colgroup><thead>${head}</thead><tbody>${rows}</tbody></table>`;
 }
 
 const $top = document.getElementById("top"), $screen = document.getElementById("screen");
 function render() {
-  const waiting = PENDING.length;
-  const badge = SYNC.state === "offline" ? `<span class="sync">Offline${waiting ? ` · ${waiting} to save` : ""}</span>`
-    : SYNC.state === "error" ? `<span class="sync bad">Couldn't reach the Sheet${waiting ? ` · ${waiting} to save` : ""}</span>` : "";
+  hideTip();
+  const waiting = PENDING.length ? ` · ${PENDING.length} to save` : "";
+  const badge = syncState === "offline" ? `<span class="sync">Offline${waiting}</span>`
+    : syncState === "error" ? `<span class="sync bad">Couldn't reach the Sheet${waiting}</span>` : "";
   if (!DATA) {
     $top.innerHTML = badge;
-    $screen.innerHTML = `<p class="empty">${SYNC.state === "ok" ? "Loading your log…" : "Couldn't load your log. Check your connection."}</p>`;
+    $screen.innerHTML = `<p class="empty">${syncState === "ok" ? "Loading your log…" : "Couldn't load your log. Check your connection."}</p>`;
     return;
   }
   model();
   const tab = currentTab();
-  $top.innerHTML = seg(tabList().map(t => [t, t === "hist" ? "Historical" : t]), tab, "tab") + (tab === "hist" ? "" : dateBar()) + badge;
+  $top.innerHTML = tabs(tab) + (tab === "hist" ? "" : dateBar()) + badge;
   $screen.innerHTML = tab === "hist" ? vHist() : vGroup(tab);
 }
 
-function dateBar() {
-  const d = logDay(), n = daysBetween(d, today()), wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][parse(d).getDay()];
-  const label = `${n === 0 ? "Today" : n === 1 ? "Yesterday" : wd} · ${fmt(d)}`;
-  return `<div class="datebar"><button data-act="day" data-v="-1" aria-label="Previous day">‹</button>
-    <label class="datepick${n ? " past" : ""}">${label}<input type="date" id="logday" value="${d}" max="${today()}" aria-label="Day to log"></label>
-    <button data-act="day" data-v="1" aria-label="Next day" ${n ? "" : "disabled"}>›</button></div>`;
-}
 document.addEventListener("change", ev => {
-  if (ev.target.id !== "logday" || !DATA) return;
-  const v = ev.target.value;
-  ui.day = /^\d{4}-\d{2}-\d{2}$/.test(v) && v <= today() ? v : today();
-  render();
+  if (ev.target.id === "logday") { setDay(ev.target.value); render(); }
 });
 
 /* swipe sideways for the next / previous tab: a quick stroke, mostly across */
@@ -359,39 +327,37 @@ document.addEventListener("touchend", ev => {
 }, { passive:true });
 
 document.addEventListener("click", ev => {
-  const el = ev.target.closest("[data-act]"); if (!el || !DATA) return;
-  const { act, id, v } = el.dataset, e = id && M.byId[id];
+  const el = ev.target.closest("[data-act]"); if (!el) return;
+  const { act, id, v } = el.dataset, e = M.byId[id], d = logDay();
   switch (act) {
     case "tab": return go(v);
     case "hp": ui.hpage = Math.max(0, ui.hpage - +v); break;
-    case "day": ui.day = addDays(logDay(), +v); logDay(); break;
+    case "day": setDay(addDays(d, +v)); break;
     case "minus": case "plus": {
-      const d = logDay(), n = Math.max(0, amountOn(e, d) + (act === "plus" ? e.step : -e.step));
+      const n = Math.max(0, amountOn(e, d) + (act === "plus" ? e.step : -e.step));
       draft[id + "|" + d] = n;
       if (entryOn(id, d)) return change({ op:"set", id, date:d, amount:n });
       break;
     }
-    case "check": {
-      const d = logDay();
-      hideTip();
-      return change(entryOn(id, d) ? { op:"del", id, date:d }
-        : { op:"set", id, date:d, amount:e.kind === "bodyweight" ? null : amountOn(e, d) });
-    }
+    case "check":
+      return change(entryOn(id, d) ? { op:"del", id, date:d } : { op:"set", id, date:d, amount:amountOn(e, d) });
   }
-  hideTip(); render();
+  render();
 });
 
-/* tooltip: hover on desktop, tap on phone */
+/* tooltip on Historical cells: hover on desktop, tap on phone */
 const tip = document.getElementById("tip");
-function showTip(el, x, y) {
+function hideTip() { tip.hidden = true; }
+function tipAt(ev) {
+  const el = ev.target.closest("[data-tip]");
+  if (!el) return hideTip();
   tip.textContent = el.dataset.tip; tip.hidden = false;
   const r = tip.getBoundingClientRect();
-  tip.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, x - r.width / 2)) + "px";
-  tip.style.top = Math.max(8, y - r.height - 12) + "px";
+  tip.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, ev.clientX - r.width / 2)) + "px";
+  tip.style.top = Math.max(8, ev.clientY - r.height - 12) + "px";
 }
-function hideTip() { tip.hidden = true; }
-document.addEventListener("pointermove", ev => { if (ev.pointerType !== "mouse") return; const el = ev.target.closest("[data-tip]"); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
-document.addEventListener("pointerdown", ev => { if (ev.pointerType === "mouse") return; const el = ev.target.closest("[data-tip]"); el ? showTip(el, ev.clientX, ev.clientY) : hideTip(); });
+document.addEventListener("pointermove", ev => { if (ev.pointerType === "mouse") tipAt(ev); });
+document.addEventListener("pointerdown", ev => { if (ev.pointerType !== "mouse") tipAt(ev); });
 addEventListener("scroll", hideTip, { passive:true });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
